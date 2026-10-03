@@ -1,0 +1,2 @@
+# Candidate build files the loader writes at runtime belong in the game folder, not here.
+builds/unknown-*.json

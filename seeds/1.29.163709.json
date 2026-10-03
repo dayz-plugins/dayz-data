@@ -1,0 +1,145 @@
+{
+  "version": "1.29.163709",
+  "_comment": [
+    "Addresses established by reverse engineering DayZ 1.29.163709 and documented in",
+    "dayz-plugins.github.io/research/. This seed is the input to `dayz-data generate`,",
+    "which fills in the byte checks, the candidate patterns and the build metadata."
+  ],
+  "symbols": {
+    "render.frame": {
+      "rva": "0x8E77C0",
+      "note": "Per-frame work in world; builds the visibility and draw lists."
+    },
+    "render.world": {
+      "rva": "0x8E7650",
+      "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit."
+    },
+    "render.projection_dispatch": {
+      "rva": "0x952000",
+      "note": "Per-frame dispatch; refreshes the primary FrameBase and the cached view and projection matrices."
+    },
+    "render.prepare_view": {
+      "rva": "0x44F5A0",
+      "note": "View setup; stores the prepared view pointer into the render context."
+    },
+    "render.execute_view": {
+      "rva": "0x4507A0",
+      "note": "Executes a view. Both call sites ignore the return value, so a view can be skipped for a frame."
+    },
+    "render.finalize_view": {
+      "rva": "0x4508B0",
+      "note": "Clears the prepared view pointer."
+    },
+    "render.dynamic_blur": {
+      "rva": "0x22EF70",
+      "note": "Blur effect handler."
+    },
+    "camera.manager": {
+      "rva": "0x1007CE0",
+      "kind": "global",
+      "note": "Camera manager pointer, passed to the active camera state getter."
+    },
+    "camera.active_state": {
+      "rva": "0x4B6BE0",
+      "note": "Active camera state getter; checks +0x88 != -1 then reads +0x118."
+    },
+    "camera.fov_update": {
+      "rva": "0x4B7AD0",
+      "note": "Camera field of view update; hooked to override the gameplay value."
+    },
+    "camera.profile_fov": {
+      "rva": "0x1007E00",
+      "kind": "global",
+      "note": "Float global holding the loaded DayZProfile field of view."
+    },
+    "gui.hud_layout": {
+      "rva": "0x8A2280",
+      "note": "GetHudContentRect; hooked to read the HUD content rectangle."
+    },
+    "gui.scale": {
+      "rva": "0x426F5CC",
+      "kind": "global",
+      "note": "Float global scaling the HUD."
+    },
+    "gui.input_handler": {
+      "rva": "0x350B60",
+      "note": "Window message handler and WM_INPUT consumer."
+    },
+    "gui.inventory_preview_call": {
+      "rva": "0x5C4CA9",
+      "kind": "instruction",
+      "note": "Call site of the inventory item preview preparation."
+    },
+    "engine.singleton": {
+      "rva": "0x42626D0",
+      "kind": "global",
+      "note": "Root engine object pointer."
+    },
+    "input.has_game_focus": {
+      "rva": "0x5F6900",
+      "note": "HasGameFocus(id); false while the focus counter is zero."
+    },
+    "input.record_ctor": {
+      "rva": "0x53A430",
+      "note": "UAInput record constructor; sets the active state block and the record flags."
+    },
+    "input.device_update": {
+      "rva": "0x351DE0",
+      "note": "Raw mouse device update; copies and zeroes the accumulated frame delta."
+    },
+    "input.register_raw_devices": {
+      "rva": "0x34FCE0",
+      "note": "One of the RegisterRawInputDevices call sites."
+    },
+    "input.keyboard_poll": {
+      "rva": "0x34FDF0",
+      "note": "Polled keyboard module; maps 256 virtual key slots through a table at Input+0x85D0."
+    }
+  },
+  "offsets": {
+    "framebase.rotation": {
+      "value": "0x08",
+      "note": "3x3 basis. Honoured by the renderer, so head rotation written here reaches the image."
+    },
+    "framebase.translation": {
+      "value": "0x2C",
+      "note": "Translation. Ignored by the renderer in this build; eye separation never reaches rendering."
+    },
+    "camera.transform_rotation": {
+      "value": "0x50",
+      "note": "Gameplay camera 3x3 rotation inside the camera manager, rows at +0x50, +0x5C and +0x68."
+    },
+    "camera.transform_position": {
+      "value": "0x74",
+      "note": "Gameplay camera position inside the camera manager."
+    },
+    "input.mouse_delta_x": {
+      "value": "0x89F8",
+      "note": "Accumulated raw mouse delta X for the frame, relative to the Input object."
+    },
+    "input.mouse_delta_y": {
+      "value": "0x89FC",
+      "note": "Accumulated raw mouse delta Y for the frame, relative to the Input object."
+    },
+    "input.focus_counter": {
+      "value": "0x183D4",
+      "note": "Game focus counter; HasGameFocus is false while it is zero."
+    },
+    "input.keyboard_table": {
+      "value": "0x85D0",
+      "note": "Virtual key to slot table used by the polled keyboard module."
+    },
+    "uainput.active_state": {
+      "value": "0x28",
+      "note": "Pointer to the active state block of a UAInput record, +0x30 by default."
+    },
+    "uainput.state_block": {
+      "value": "0x30",
+      "note": "State block A, 0x20 bytes; +0x34 holds the press, release and hold flags."
+    },
+    "uainput.control_flags": {
+      "value": "0x70",
+      "note": "Control flags: 0x08 locked, 0x20 from the registry byte, 0x40 force enabled."
+    }
+  }
+}

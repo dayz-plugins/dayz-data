@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dayz-plugins.github.io/schema/patterns.schema.json",
+  "title": "dayz-data pattern file",
+  "description": "Build-independent byte signatures. The source of truth: an unknown build is resolved by scanning these.",
+  "type": "object",
+  "required": ["schema"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "symbols": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/name" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["patterns"],
+        "additionalProperties": false,
+        "properties": {
+          "patterns": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Tried in order. A second entry keeps an older build working after a signature changes shape.",
+            "items": { "$ref": "#/$defs/pattern" }
+          },
+          "resolve": {
+            "description": "What to do with a hit. Omitted means the hit is the address.",
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["kind"],
+                "additionalProperties": false,
+                "properties": { "kind": { "const": "direct" } }
+              },
+              {
+                "type": "object",
+                "required": ["kind", "offset"],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": { "const": "offset" },
+                  "offset": { "type": "integer" }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["kind", "offset"],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": { "const": "rip_relative" },
+                  "offset": { "type": "integer", "minimum": 0 },
+                  "length": { "type": "integer", "minimum": 1 }
+                }
+              }
+            ]
+          },
+          "note": { "type": "string" },
+          "since": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "name": { "type": "string", "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)+$" },
+    "pattern": { "type": "string", "pattern": "^([0-9A-Fa-f]{2}|\\?\\?)( ([0-9A-Fa-f]{2}|\\?\\?))*$" }
+  }
+}
