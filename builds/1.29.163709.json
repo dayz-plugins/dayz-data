@@ -7,7 +7,7 @@
     "file_size": 17851448,
     "pe_timestamp": "0x6A72FC58",
     "image_size": "0x4406000",
-    "verified": "2026-10-03",
+    "verified": "unverified",
     "provenance": "analysis"
   },
   "symbols": {
@@ -97,6 +97,11 @@
       "check": "48 8B C4 4C 89 48 20 55 48 8D 68 C8",
       "note": "Blur effect handler."
     },
+    "render.dynamic_blur_parameter_index": {
+      "rva": "0xFED8F8",
+      "kind": "global",
+      "note": "Index of the blur amount parameter, zeroed per call by the predecessor project."
+    },
     "render.execute_view": {
       "rva": "0x4507A0",
       "kind": "function",
@@ -132,6 +137,59 @@
       "kind": "function",
       "check": "48 89 6C 24 18 57 41 56 41 57 48 83",
       "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit."
+    },
+    "script.cfgmods_read": {
+      "rva": "0x43F6F2",
+      "kind": "instruction",
+      "check": "4C 8D 05 DF A9 82 00 48 8D 55 B0 48",
+      "note": "First of four references to the CfgMods config class name in the mod setup function; a fifth is at 0x5977EB."
+    },
+    "script.load_script_retail_gate": {
+      "rva": "0x2D9A3B",
+      "kind": "instruction",
+      "check": "48 8D 15 E6 A5 96 00 41 B8 01 00 00",
+      "note": "Loads the refusal message inside script.load_script_stub. The only reference to that string in the image."
+    },
+    "script.load_script_stub": {
+      "rva": "0x2D9A30",
+      "kind": "function",
+      "check": "48 83 EC 28 48 8B 0D F5 80 D1 00 48",
+      "note": "Whole native body bound to ScriptModule.LoadScript on retail: log the refusal, return null. Registered as the static method at script.scriptmodule_registrator + 0xC4."
+    },
+    "script.module_config_add": {
+      "rva": "0x4CA7E0",
+      "kind": "function",
+      "check": "4C 8B DC 49 89 53 10 55 53 56 57 41",
+      "note": "Called once per CfgMods script module key with the key name in r9; the common path that turns a mod's config entry into a script module."
+    },
+    "script.module_config_read": {
+      "rva": "0x4CA5C0",
+      "kind": "function",
+      "check": "C8 89 54 24 20 48 8B 15 8C 67 A5 00",
+      "note": "Reads the five CfgMods script module keys in order (engine, gameLib, game, world, mission at 0x4CA5FE, 0x4CA666, 0x4CA6C9, 0x4CA728, 0x4CA787) and calls script.module_config_add for each."
+    },
+    "script.native_register_method": {
+      "rva": "0x31B7F0",
+      "kind": "function",
+      "check": "48 89 74 24 10 57 48 83 EC 20 48 8B",
+      "note": "Binds one instance method: (class, ctx, name, function, flags)."
+    },
+    "script.native_register_static": {
+      "rva": "0x31B790",
+      "kind": "function",
+      "check": "48 89 74 24 10 57 48 83 EC 30 0F B6",
+      "note": "Binds one static method; same shape as script.native_register_method."
+    },
+    "script.script_module_instance": {
+      "rva": "0xFF1B20",
+      "kind": "global",
+      "note": "The engine ScriptModule the g_Script script global is bound to."
+    },
+    "script.scriptmodule_registrator": {
+      "rva": "0x2D85FB",
+      "kind": "instruction",
+      "check": "48 8B 8B 30 04 00 00 4C 8D 05 17 0D",
+      "note": "Registration of the ScriptModule script class and its methods: Call 0x31AAA0, CallFunction 0x31ACE0, CallFunctionParams 0x31AEF0, Release 0x2E7420, LoadScript 0x2D9A30."
     }
   },
   "offsets": {
@@ -166,6 +224,10 @@
     "input.mouse_delta_y": {
       "value": "0x89FC",
       "note": "Accumulated raw mouse delta Y for the frame, relative to the Input object."
+    },
+    "render.context_camera": {
+      "value": "0x118",
+      "note": "Camera pointer read by the active camera state getter, which first checks +0x88 != -1."
     },
     "uainput.active_state": {
       "value": "0x28",

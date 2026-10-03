@@ -170,6 +170,86 @@
       },
       "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit.",
       "since": "1.29.163709"
+    },
+    "script.cfgmods_read": {
+      "patterns": [
+        "4C 8D 05 DF A9 82 00 48 8D 55 B0 48"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "First of four references to the CfgMods config class name in the mod setup function; a fifth is at 0x5977EB.",
+      "since": "1.29.163709"
+    },
+    "script.load_script_retail_gate": {
+      "patterns": [
+        "48 8D 15 E6 A5 96 00 41 B8 01 00 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Loads the refusal message for ScriptModule.LoadScript on a retail client. The only reference to that string in the image, so the gate that blocks loading scripts from outside a PBO is in this function.",
+      "since": "1.29.163709"
+    },
+    "script.load_script_stub": {
+      "patterns": [
+        "48 83 EC 28 48 8B 0D F5 80 D1 00 48"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Whole native body bound to ScriptModule.LoadScript on retail: log the refusal, return null. Registered as the static method at script.scriptmodule_registrator + 0xC4.",
+      "since": "1.29.163709"
+    },
+    "script.module_config_add": {
+      "patterns": [
+        "4C 8B DC 49 89 53 10 55 53 56 57 41"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Called once per CfgMods script module key with the key name in r9; the common path that turns a mod's config entry into a script module.",
+      "since": "1.29.163709"
+    },
+    "script.module_config_read": {
+      "patterns": [
+        "C8 89 54 24 20 48 8B 15 8C 67 A5 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Reads the five CfgMods script module keys in order (engine, gameLib, game, world, mission at 0x4CA5FE, 0x4CA666, 0x4CA6C9, 0x4CA728, 0x4CA787) and calls script.module_config_add for each.",
+      "since": "1.29.163709"
+    },
+    "script.native_register_method": {
+      "patterns": [
+        "48 89 74 24 10 57 48 83 EC 20 48 8B F1 E8 1E 40"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Binds one instance method: (class, ctx, name, function, flags).",
+      "since": "1.29.163709"
+    },
+    "script.native_register_static": {
+      "patterns": [
+        "48 89 74 24 10 57 48 83 EC 30 0F B6"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Binds one static method; same shape as script.native_register_method.",
+      "since": "1.29.163709"
+    },
+    "script.scriptmodule_registrator": {
+      "patterns": [
+        "48 8B 8B 30 04 00 00 4C 8D 05 17 0D"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Registration of the ScriptModule script class and its methods: Call 0x31AAA0, CallFunction 0x31ACE0, CallFunctionParams 0x31AEF0, Release 0x2E7420, LoadScript 0x2D9A30.",
+      "since": "1.29.163709"
     }
   }
 }

@@ -6,39 +6,6 @@
     "which fills in the byte checks, the candidate patterns and the build metadata."
   ],
   "symbols": {
-    "render.frame": {
-      "rva": "0x8E77C0",
-      "note": "Per-frame work in world; builds the visibility and draw lists."
-    },
-    "render.world": {
-      "rva": "0x8E7650",
-      "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit."
-    },
-    "render.projection_dispatch": {
-      "rva": "0x952000",
-      "note": "Per-frame dispatch; refreshes the primary FrameBase and the cached view and projection matrices."
-    },
-    "render.prepare_view": {
-      "rva": "0x44F5A0",
-      "note": "View setup; stores the prepared view pointer into the render context."
-    },
-    "render.execute_view": {
-      "rva": "0x4507A0",
-      "note": "Executes a view. Both call sites ignore the return value, so a view can be skipped for a frame."
-    },
-    "render.finalize_view": {
-      "rva": "0x4508B0",
-      "note": "Clears the prepared view pointer."
-    },
-    "render.dynamic_blur": {
-      "rva": "0x22EF70",
-      "note": "Blur effect handler."
-    },
-    "camera.manager": {
-      "rva": "0x1007CE0",
-      "kind": "global",
-      "note": "Camera manager pointer, passed to the active camera state getter."
-    },
     "camera.active_state": {
       "rva": "0x4B6BE0",
       "note": "Active camera state getter; checks +0x88 != -1 then reads +0x118."
@@ -47,19 +14,24 @@
       "rva": "0x4B7AD0",
       "note": "Camera field of view update; hooked to override the gameplay value."
     },
+    "camera.manager": {
+      "rva": "0x1007CE0",
+      "kind": "global",
+      "note": "Camera manager pointer, passed to the active camera state getter."
+    },
     "camera.profile_fov": {
       "rva": "0x1007E00",
       "kind": "global",
       "note": "Float global holding the loaded DayZProfile field of view."
     },
+    "engine.singleton": {
+      "rva": "0x42626D0",
+      "kind": "global",
+      "note": "Root engine object pointer."
+    },
     "gui.hud_layout": {
       "rva": "0x8A2280",
       "note": "GetHudContentRect; hooked to read the HUD content rectangle."
-    },
-    "gui.scale": {
-      "rva": "0x426F5CC",
-      "kind": "global",
-      "note": "Float global scaling the HUD."
     },
     "gui.input_handler": {
       "rva": "0x350B60",
@@ -70,33 +42,114 @@
       "kind": "instruction",
       "note": "Call site of the inventory item preview preparation."
     },
-    "engine.singleton": {
-      "rva": "0x42626D0",
+    "gui.scale": {
+      "rva": "0x426F5CC",
       "kind": "global",
-      "note": "Root engine object pointer."
-    },
-    "input.has_game_focus": {
-      "rva": "0x5F6900",
-      "note": "HasGameFocus(id); false while the focus counter is zero."
-    },
-    "input.record_ctor": {
-      "rva": "0x53A430",
-      "note": "UAInput record constructor; sets the active state block and the record flags."
+      "note": "Float global scaling the HUD."
     },
     "input.device_update": {
       "rva": "0x351DE0",
       "note": "Raw mouse device update; copies and zeroes the accumulated frame delta."
     },
-    "input.register_raw_devices": {
-      "rva": "0x34FCE0",
-      "note": "One of the RegisterRawInputDevices call sites."
+    "input.has_game_focus": {
+      "rva": "0x5F6900",
+      "note": "HasGameFocus(id); false while the focus counter is zero."
     },
     "input.keyboard_poll": {
       "rva": "0x34FDF0",
       "note": "Polled keyboard module; maps 256 virtual key slots through a table at Input+0x85D0."
+    },
+    "input.record_ctor": {
+      "rva": "0x53A430",
+      "note": "UAInput record constructor; sets the active state block and the record flags."
+    },
+    "input.register_raw_devices": {
+      "rva": "0x34FCE0",
+      "note": "One of the RegisterRawInputDevices call sites."
+    },
+    "render.dynamic_blur": {
+      "rva": "0x22EF70",
+      "note": "Blur effect handler."
+    },
+    "render.dynamic_blur_parameter_index": {
+      "rva": "0xFED8F8",
+      "kind": "global",
+      "note": "Index of the blur amount parameter, zeroed per call by the predecessor project."
+    },
+    "render.execute_view": {
+      "rva": "0x4507A0",
+      "note": "Executes a view. Both call sites ignore the return value, so a view can be skipped for a frame."
+    },
+    "render.finalize_view": {
+      "rva": "0x4508B0",
+      "note": "Clears the prepared view pointer."
+    },
+    "render.frame": {
+      "rva": "0x8E77C0",
+      "note": "Per-frame work in world; builds the visibility and draw lists."
+    },
+    "render.prepare_view": {
+      "rva": "0x44F5A0",
+      "note": "View setup; stores the prepared view pointer into the render context."
+    },
+    "render.projection_dispatch": {
+      "rva": "0x952000",
+      "note": "Per-frame dispatch; refreshes the primary FrameBase and the cached view and projection matrices."
+    },
+    "render.world": {
+      "rva": "0x8E7650",
+      "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit."
+    },
+    "script.cfgmods_read": {
+      "rva": "0x43F6F2",
+      "kind": "instruction",
+      "note": "First of four references to the CfgMods config class name in the mod setup function; a fifth is at 0x5977EB."
+    },
+    "script.load_script_retail_gate": {
+      "rva": "0x2D9A3B",
+      "kind": "instruction",
+      "note": "Loads the refusal message inside script.load_script_stub. The only reference to that string in the image."
+    },
+    "script.load_script_stub": {
+      "rva": "0x2D9A30",
+      "note": "Whole native body bound to ScriptModule.LoadScript on retail: log the refusal, return null. Registered as the static method at script.scriptmodule_registrator + 0xC4."
+    },
+    "script.module_config_add": {
+      "rva": "0x4CA7E0",
+      "note": "Called once per CfgMods script module key with the key name in r9; the common path that turns a mod's config entry into a script module."
+    },
+    "script.module_config_read": {
+      "rva": "0x4CA5C0",
+      "note": "Reads the five CfgMods script module keys in order (engine, gameLib, game, world, mission at 0x4CA5FE, 0x4CA666, 0x4CA6C9, 0x4CA728, 0x4CA787) and calls script.module_config_add for each."
+    },
+    "script.native_register_method": {
+      "rva": "0x31B7F0",
+      "note": "Binds one instance method: (class, ctx, name, function, flags)."
+    },
+    "script.native_register_static": {
+      "rva": "0x31B790",
+      "note": "Binds one static method; same shape as script.native_register_method."
+    },
+    "script.script_module_instance": {
+      "rva": "0xFF1B20",
+      "kind": "global",
+      "note": "The engine ScriptModule the g_Script script global is bound to."
+    },
+    "script.scriptmodule_registrator": {
+      "rva": "0x2D85FB",
+      "kind": "instruction",
+      "note": "Registration of the ScriptModule script class and its methods: Call 0x31AAA0, CallFunction 0x31ACE0, CallFunctionParams 0x31AEF0, Release 0x2E7420, LoadScript 0x2D9A30."
     }
   },
   "offsets": {
+    "camera.transform_position": {
+      "value": "0x74",
+      "note": "Gameplay camera position inside the camera manager."
+    },
+    "camera.transform_rotation": {
+      "value": "0x50",
+      "note": "Gameplay camera 3x3 rotation inside the camera manager, rows at +0x50, +0x5C and +0x68."
+    },
     "framebase.rotation": {
       "value": "0x08",
       "note": "3x3 basis. Honoured by the renderer, so head rotation written here reaches the image."
@@ -104,22 +157,6 @@
     "framebase.translation": {
       "value": "0x2C",
       "note": "Translation. Ignored by the renderer in this build; eye separation never reaches rendering."
-    },
-    "camera.transform_rotation": {
-      "value": "0x50",
-      "note": "Gameplay camera 3x3 rotation inside the camera manager, rows at +0x50, +0x5C and +0x68."
-    },
-    "camera.transform_position": {
-      "value": "0x74",
-      "note": "Gameplay camera position inside the camera manager."
-    },
-    "input.mouse_delta_x": {
-      "value": "0x89F8",
-      "note": "Accumulated raw mouse delta X for the frame, relative to the Input object."
-    },
-    "input.mouse_delta_y": {
-      "value": "0x89FC",
-      "note": "Accumulated raw mouse delta Y for the frame, relative to the Input object."
     },
     "input.focus_counter": {
       "value": "0x183D4",
@@ -129,17 +166,29 @@
       "value": "0x85D0",
       "note": "Virtual key to slot table used by the polled keyboard module."
     },
+    "input.mouse_delta_x": {
+      "value": "0x89F8",
+      "note": "Accumulated raw mouse delta X for the frame, relative to the Input object."
+    },
+    "input.mouse_delta_y": {
+      "value": "0x89FC",
+      "note": "Accumulated raw mouse delta Y for the frame, relative to the Input object."
+    },
+    "render.context_camera": {
+      "value": "0x118",
+      "note": "Camera pointer read by the active camera state getter, which first checks +0x88 != -1."
+    },
     "uainput.active_state": {
       "value": "0x28",
       "note": "Pointer to the active state block of a UAInput record, +0x30 by default."
     },
-    "uainput.state_block": {
-      "value": "0x30",
-      "note": "State block A, 0x20 bytes; +0x34 holds the press, release and hold flags."
-    },
     "uainput.control_flags": {
       "value": "0x70",
       "note": "Control flags: 0x08 locked, 0x20 from the registry byte, 0x40 force enabled."
+    },
+    "uainput.state_block": {
+      "value": "0x30",
+      "note": "State block A, 0x20 bytes; +0x34 holds the press, release and hold flags."
     }
   }
 }

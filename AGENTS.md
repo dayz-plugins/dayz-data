@@ -19,6 +19,10 @@ behind this format is `design/address-database.md` there. This repository carrie
   metadata stay consistent with the executable. Hand-edit `seeds/*.json` instead.
 - **Never overwrite a hand-wildcarded pattern with a generated one.** The generator merges
   and keeps what is already there; preserve that behaviour if you touch it.
+- **When you move an address in a seed, delete that symbol's pattern.** The merge above keeps
+  the old byte run, which then resolves to the old address while the cache holds the new one.
+  `validate` cross-checks the cache against the patterns and reports the disagreement; a run
+  with such a mismatch is not a passing run.
 - **A global gets no check and no pattern.** Its bytes in the file are initialisation data,
   not what memory holds while the game runs. Writing a check for one produces a symbol that
   fails on every launch.

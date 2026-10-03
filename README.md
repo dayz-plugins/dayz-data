@@ -19,6 +19,11 @@ the addresses already resolved for it. Each code address carries a short `check`
 expected there. If the bytes do not match, the loader discards the entry and scans instead, so
 a stale file reports a missing symbol rather than aiming a hook at the wrong instruction.
 
+A build file is also matched on `pe_timestamp` together with `image_size`, which is what
+identifies a build when the executable on disk is not the one in memory, or when an entry came
+from somewhere that never recorded a hash. A hash match is preferred and the loader logs which
+key matched.
+
 ```
 patterns.json              signatures, the source of truth
 builds/1.29.163709.json    resolved addresses for one executable hash
@@ -57,6 +62,12 @@ them would identify nothing and a check over them would fail on every launch.
    cargo run -p dayz-data-tool -- validate /path/to/dayz-data --exe "/path/to/DayZ/DayZ_x64.exe"
    ```
 
+`validate` also cross-checks the two halves against each other: it resolves once from the
+cache and once from the patterns alone, and reports any symbol where the two disagree.
+`generate` never overwrites a pattern that already exists, so that a hand-wildcarded signature
+survives regeneration — which means a seed address that moves leaves the old pattern behind,
+and this check is what catches it.
+
 **Generated patterns are literal byte runs.** They are the shortest run at the address that
 occurs exactly once in the image, which makes them correct for the build they came from and a
 coin flip for the next one, because a run may contain a call target or a displacement that
@@ -82,12 +93,21 @@ In the game folder the database lives at `DayZ/dayz-plugins/data/`, and the load
 
 | Build | Executable | Symbols | Offsets | Provenance |
 | --- | --- | --- | --- | --- |
-| 1.29.163709 | `DayZ_x64.exe`, PE timestamp `0x6A72FC58` | 21 | 11 | analysis |
+| 1.29.163709 | `DayZ_x64.exe`, PE timestamp `0x6A72FC58` | 31 | 12 | analysis |
+| external-0x6A47B9AA | `DayZ_x64.exe`, PE timestamp `0x6A47B9AA` | 15 | 4 | external |
+| external-diag-0x6A47BAF9 | `DayZDiag_x64.exe`, PE timestamp `0x6A47BAF9` | 8 | 4 | external |
 
-The addresses come from the reverse-engineering notes in
+The 1.29 addresses come from the reverse-engineering notes in
 [dayz-plugins.github.io/research](https://github.com/dayz-plugins/dayz-plugins.github.io/tree/main/research),
 which explain what each one is and how it was found. "Analysis" means read from a
 disassembler and resolved against the real executable, not yet exercised by a running hook.
+
+The two `external` builds are an older game version and its Diag executable, extracted from
+[maksidze/DayZ-VR](https://github.com/maksidze/DayZ-VR), which gated on the PE timestamp and
+carried no byte signatures. They have no hash and no checks, so for those builds a wrong
+address cannot be caught at load time; the loader says so in a warning. They are here because
+they make a second data point for every symbol, which is what tells a pattern from a
+coincidence.
 
 ## License
 
