@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "build": {
+    "version": "external-diag-0x6A47BAF9",
+    "executable": "DayZDiag_x64.exe",
+    "pe_timestamp": "0x6A47BAF9",
+    "image_size": "0x49E7000",
+    "provenance": "external"
+  },
+  "symbols": {
+    "engine.singleton": {
+      "rva": "0x4815740",
+      "kind": "global",
+      "note": "Root engine object pointer."
+    },
+    "gui.hud_layout": {
+      "rva": "0xA7B7B0",
+      "kind": "function",
+      "note": "GetHudContentRect."
+    },
+    "gui.input_handler": {
+      "rva": "0x389410",
+      "kind": "function",
+      "note": "Window message handler and WM_INPUT consumer."
+    },
+    "gui.scale": {
+      "rva": "0x4823F4C",
+      "kind": "global",
+      "note": "Float global scaling the HUD."
+    },
+    "render.execute_view": {
+      "rva": "0x48EB30",
+      "kind": "function",
+      "note": "Executes a view."
+    },
+    "render.finalize_view": {
+      "rva": "0x48EC40",
+      "kind": "function",
+      "note": "Clears the prepared view pointer."
+    },
+    "render.prepare_view": {
+      "rva": "0x48D8A0",
+      "kind": "function",
+      "note": "View setup."
+    },
+    "render.projection_dispatch": {
+      "rva": "0xB30D10",
+      "kind": "function",
+      "note": "Per-frame projection dispatch."
+    }
+  },
+  "offsets": {
+    "render.context_arena_cursor": {
+      "value": "0xA88",
+      "note": "Arena cursor inside the render context."
+    },
+    "render.context_camera": {
+      "value": "0x118",
+      "note": "Camera pointer inside the render context."
+    },
+    "render.context_descriptor": {
+      "value": "0xA10",
+      "note": "Descriptor pointer inside the render context."
+    },
+    "render.prepared_context_camera": {
+      "value": "0xA34",
+      "note": "Camera of the prepared view inside the render context."
+    }
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "build": {
+    "version": "external-0x6A47B9AA",
+    "executable": "DayZ_x64.exe",
+    "pe_timestamp": "0x6A47B9AA",
+    "image_size": "0x4407000",
+    "provenance": "external"
+  },
+  "symbols": {
+    "camera.active_state": {
+      "rva": "0x4B77D0",
+      "kind": "function",
+      "note": "Active camera state getter."
+    },
+    "camera.fov_update": {
+      "rva": "0x4B86C0",
+      "kind": "function",
+      "note": "Camera field of view update."
+    },
+    "camera.manager": {
+      "rva": "0x1008D50",
+      "kind": "global",
+      "note": "Camera manager pointer."
+    },
+    "camera.profile_fov": {
+      "rva": "0x1008E70",
+      "kind": "global",
+      "note": "Float global holding the loaded DayZProfile field of view."
+    },
+    "engine.singleton": {
+      "rva": "0x4263740",
+      "kind": "global",
+      "note": "Root engine object pointer."
+    },
+    "gui.hud_layout": {
+      "rva": "0x8A2DB0",
+      "kind": "function",
+      "note": "GetHudContentRect."
+    },
+    "gui.input_handler": {
+      "rva": "0x351760",
+      "kind": "function",
+      "note": "Window message handler and WM_INPUT consumer."
+    },
+    "gui.inventory_preview_call": {
+      "rva": "0x5C5899",
+      "kind": "instruction",
+      "note": "Call site of the inventory item preview preparation."
+    },
+    "gui.scale": {
+      "rva": "0x427063C",
+      "kind": "global",
+      "note": "Float global scaling the HUD."
+    },
+    "render.dynamic_blur": {
+      "rva": "0x22FB70",
+      "kind": "function",
+      "note": "Blur effect handler."
+    },
+    "render.dynamic_blur_parameter_index": {
+      "rva": "0xFEE968",
+      "kind": "global",
+      "note": "Index of the blur amount parameter."
+    },
+    "render.execute_view": {
+      "rva": "0x4513A0",
+      "kind": "function",
+      "note": "Executes a view."
+    },
+    "render.finalize_view": {
+      "rva": "0x4514B0",
+      "kind": "function",
+      "note": "Clears the prepared view pointer."
+    },
+    "render.prepare_view": {
+      "rva": "0x4501A0",
+      "kind": "function",
+      "note": "View setup."
+    },
+    "render.projection_dispatch": {
+      "rva": "0x952B30",
+      "kind": "function",
+      "note": "Per-frame projection dispatch."
+    }
+  },
+  "offsets": {
+    "render.context_arena_cursor": {
+      "value": "0xA88",
+      "note": "Arena cursor inside the render context."
+    },
+    "render.context_camera": {
+      "value": "0x118",
+      "note": "Camera pointer inside the render context."
+    },
+    "render.context_descriptor": {
+      "value": "0xA10",
+      "note": "Descriptor pointer inside the render context."
+    },
+    "render.prepared_context_camera": {
+      "value": "0xA34",
+      "note": "Camera of the prepared view inside the render context."
+    }
+  }
+}
