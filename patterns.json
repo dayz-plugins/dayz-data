@@ -51,6 +51,36 @@
       "note": "Call site of the inventory item preview preparation.",
       "since": "1.29.163709"
     },
+    "input.action_registry_get": {
+      "patterns": [
+        "48 8B 05 21 49 AD 00 C3 CC CC CC CC"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Returns the action registry: reads the input.action_registry global. What the by-id getters call before indexing registry+0x98.",
+      "since": "1.29.163709"
+    },
+    "input.axis_pair": {
+      "patterns": [
+        "48 89 5C 24 08 48 89 74 24 10 57 48 81 EC 80 00 00 00 0F 29 74 24 70 48 8B F1 F3 0F"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 22: (mode, idA, idB, check_focus) -> (value(idA) - value(idB)) through a response curve and the sensitivity for mode (0 mouse, 1 raw, 2 mouse without the curve constant, 3 alternative), clamped. The aim consumer calls it with mode 0, so its result is an angular rate in radians per second.",
+      "since": "1.29.163709"
+    },
+    "input.click_by_id": {
+      "patterns": [
+        "40 53 48 83 EC 20 8B DA E8 ?? ?? ?? ?? 3B 98 A4 00 00 00 73 1D 48 8B 80 98 00 00 00 48 8B 04 D8 48 8B 40 28 8B 40 04 C1 E8 ?? ?? ?? ?? 83 C4 20 5B C3 48 8B 80 10 01 00 00 48 8B 40 28 8B 40 04"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 18: click, state block flag bit 21, by action id.",
+      "since": "1.29.163709"
+    },
     "input.device_update": {
       "patterns": [
         "41 57 48 83 EC 40 48 89 5C 24 58 4C 8D B9 E8 00"
@@ -59,6 +89,26 @@
         "kind": "direct"
       },
       "note": "Raw mouse device update; copies and zeroes the accumulated frame delta.",
+      "since": "1.29.163709"
+    },
+    "input.double_click_by_id": {
+      "patterns": [
+        "40 53 48 83 EC 20 41 0F B6 C0 8B DA 0F B6 D0 48 83 C1 D8 41 B8 FF FF FF FF E8 ?? ?? ?? ?? 84 C0 75 06 48 83 C4 20 5B C3 E8 ?? ?? ?? ?? 3B 98 A4 00 00 00 73 1D 48 8B 80 98 00 00 00 48 8B 04 D8"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 15: double click, state block flag bit 6, by action id.",
+      "since": "1.29.163709"
+    },
+    "input.double_click_by_record": {
+      "patterns": [
+        "40 53 48 83 EC 20 81 7A 74 01 00 FF FF 41 0F B6 C0 48 8B DA 74 28 48 83 C1 D8 41 B8 FF FF FF FF 0F B6 D0 E8 ?? ?? ?? ?? 84 C0 74 12 48 8B 43 28 8B 40 04 C1 E8 ?? ?? ?? ?? 83 C4 20 5B C3 32 C0"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 17: double click, state block flag bit 6, by record.",
       "since": "1.29.163709"
     },
     "input.has_game_focus": {
@@ -71,6 +121,56 @@
       "note": "HasGameFocus(id); false while the focus counter is zero.",
       "since": "1.29.163709"
     },
+    "input.hold_begin_by_id": {
+      "patterns": [
+        "40 53 48 83 EC 20 41 0F B6 C0 8B DA 0F B6 D0 48 83 C1 D8 41 B8 FF FF FF FF E8 ?? ?? ?? ?? 84 C0 75 06 48 83 C4 20 5B C3 E8 ?? ?? ?? ?? 3B 98 A4 00 00 00 73 1D 48 8B 80 98 00 00 00 48 8B 04 D8"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 12: hold begin, state block flag bit 4, by action id.",
+      "since": "1.29.163709"
+    },
+    "input.hold_begin_by_record": {
+      "patterns": [
+        "40 53 48 83 EC 20 81 7A 74 01 00 FF FF 41 0F B6 C0 48 8B DA 74 28 48 83 C1 D8 41 B8 FF FF FF FF 0F B6 D0 E8 ?? ?? ?? ?? 84 C0 74 12 48 8B 43 28 8B 40 04 C1 E8 ?? ?? ?? ?? 83 C4 20 5B C3 32 C0"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 14: hold begin, state block flag bit 4, by record.",
+      "since": "1.29.163709"
+    },
+    "input.hold_by_id": {
+      "patterns": [
+        "40 53 48 83 EC 20 41 0F B6 C0 8B DA 0F B6 D0 48 83 C1 D8 41 B8 FF FF FF FF E8 ?? ?? ?? ?? 84 C0 75 06 48 83 C4 20 5B C3 E8 ?? ?? ?? ?? 3B 98 A4 00 00 00 73 1D 48 8B 80 98 00 00 00 48 8B 04 D8"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 9: hold, state block flag bit 3, by action id.",
+      "since": "1.29.163709"
+    },
+    "input.hold_by_record": {
+      "patterns": [
+        "40 53 48 83 EC 20 81 7A 74 01 00 FF FF 41 0F B6 C0 48 8B DA 74 28 48 83 C1 D8 41 B8 FF FF FF FF 0F B6 D0 E8 ?? ?? ?? ?? 84 C0 74 12 48 8B 43 28 8B 40 04 C1 E8 ?? ?? ?? ?? 83 C4 20 5B C3 32 C0"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 11: hold, state block flag bit 3, by record.",
+      "since": "1.29.163709"
+    },
+    "input.interface_for_player": {
+      "patterns": [
+        "83 FA 02 74 1E 48 8B 41 48 48 85 C0"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Resolves the input interface a consumer reads from. Returns Input+0x28 for the local player; a replay source or the remote player's interface otherwise.",
+      "since": "1.29.163709"
+    },
     "input.keyboard_poll": {
       "patterns": [
         "48 89 5C 24 08 57 48 81 EC 20 01 00 00 48 8B F9"
@@ -79,6 +179,56 @@
         "kind": "direct"
       },
       "note": "Polled keyboard module; maps 256 virtual key slots through a table at Input+0x85D0.",
+      "since": "1.29.163709"
+    },
+    "input.local_value": {
+      "patterns": [
+        "48 8B 41 28 F3 0F 10 40 10 F3 0F 58"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "LocalValue of a state block: the sum of the two floats at block+0x0C and block+0x10.",
+      "since": "1.29.163709"
+    },
+    "input.player_controller_aim": {
+      "patterns": [
+        "48 8B C4 41 56 48 81 EC 90 00 00 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "DayZPlayerInputController slot 7: aim. Calls the axis pair with mode 0 for (UAAimRight, UAAimLeft) and (UAAimDown, UAAimUp), clamps and multiplies by dt, which GetAimChange reports in radians.",
+      "since": "1.29.163709"
+    },
+    "input.player_controller_update": {
+      "patterns": [
+        "48 8B C4 48 89 50 10 57 41 56 48 81"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "DayZPlayerInputController slot 6: the per-frame on-foot update (self, player, dt). Builds movement from the UAMoveRight/Left/Forward/Back values, so this is the function that proves the engine consumes analogue action values. The vehicle (UACar*) consumer has not been found yet.",
+      "since": "1.29.163709"
+    },
+    "input.press_by_id": {
+      "patterns": [
+        "40 53 48 83 EC 20 41 0F B6 C0 8B DA 0F B6 D0 48 83 C1 D8 41 B8 FF FF FF FF E8 ?? ?? ?? ?? 84 C0 75 06 48 83 C4 20 5B C3 E8 ?? ?? ?? ?? 3B 98 A4 00 00 00 73 1C 48 8B 80 98 00 00 00 48 8B 04 D8"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 3: press, state block flag bit 1, by action id.",
+      "since": "1.29.163709"
+    },
+    "input.press_by_record": {
+      "patterns": [
+        "40 53 48 83 EC 20 81 7A 74 01 00 FF FF 41 0F B6 C0 48 8B DA 74 27 48 83 C1 D8 41 B8 FF FF FF FF 0F B6 D0 E8 ?? ?? ?? ?? 84 C0 74 11 48 8B 43 28 8B 40 04 D1 E8 ?? ?? ?? ?? C4 20 5B C3 32 C0 48"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 5: press, state block flag bit 1, by record.",
       "since": "1.29.163709"
     },
     "input.record_ctor": {
@@ -99,6 +249,66 @@
         "kind": "direct"
       },
       "note": "One of the RegisterRawInputDevices call sites.",
+      "since": "1.29.163709"
+    },
+    "input.release_by_id": {
+      "patterns": [
+        "40 53 48 83 EC 20 41 0F B6 C0 8B DA 0F B6 D0 48 83 C1 D8 41 B8 FF FF FF FF E8 ?? ?? ?? ?? 84 C0 75 06 48 83 C4 20 5B C3 E8 ?? ?? ?? ?? 3B 98 A4 00 00 00 73 1D 48 8B 80 98 00 00 00 48 8B 04 D8"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 6: release, state block flag bit 2, by action id.",
+      "since": "1.29.163709"
+    },
+    "input.release_by_record": {
+      "patterns": [
+        "40 53 48 83 EC 20 81 7A 74 01 00 FF FF 41 0F B6 C0 48 8B DA 74 28 48 83 C1 D8 41 B8 FF FF FF FF 0F B6 D0 E8 ?? ?? ?? ?? 84 C0 74 12 48 8B 43 28 8B 40 04 C1 E8 ?? ?? ?? ?? 83 C4 20 5B C3 32 C0"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 8: release, state block flag bit 2, by record.",
+      "since": "1.29.163709"
+    },
+    "input.resolve_action_name": {
+      "patterns": [
+        "40 53 48 83 EC 20 4C 8B CA 48 8B D9"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Resolves an action name to its record through the action registry. What input.value_by_name calls before the record variant.",
+      "since": "1.29.163709"
+    },
+    "input.value_by_id": {
+      "patterns": [
+        "40 53 48 83 EC 20 41 0F B6 C0 8B DA 0F B6 D0 48 83 C1 D8 41 B8 FF FF FF FF E8 ?? ?? ?? ?? 84 C0 75 09 0F 57 C0 48 83 C4 20 5B C3 E8 ?? ?? ?? ?? 3B 98 A4 00 00 00 73 0D 48 8B 80 98 00 00 00 48"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 0: LocalValue as a float, by action id. Analogue: the on-foot consumer builds movement from these values, so an analogue value gives an analogue speed.",
+      "since": "1.29.163709"
+    },
+    "input.value_by_name": {
+      "patterns": [
+        "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B 39 48 8B DA 48 8B F1 E8 23 ED F3"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 1: LocalValue by action name; resolves the name through input.resolve_action_name and calls input.value_by_record.",
+      "since": "1.29.163709"
+    },
+    "input.value_by_record": {
+      "patterns": [
+        "40 53 48 83 EC 20 81 7A 74 01 00 FF FF 41 0F B6 C0 48 8B DA 74 2A 48 83 C1 D8 41 B8 FF FF FF FF 0F B6 D0 E8 ?? ?? ?? ?? 84 C0 74 14 48 8B 43 28 F3 0F 10 40 10 F3 0F 58 40 0C 48 83 C4 20 5B C3"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Input interface slot 2: LocalValue as a float, by record. Checks record+0x74 != -0xFFFF, then sums the two floats in the active state block.",
       "since": "1.29.163709"
     },
     "render.dynamic_blur": {

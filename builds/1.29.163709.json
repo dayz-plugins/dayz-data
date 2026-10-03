@@ -61,11 +61,46 @@
       "kind": "global",
       "note": "Float global scaling the HUD."
     },
+    "input.action_registry": {
+      "rva": "0x1009408",
+      "kind": "global",
+      "note": "UAInput action registry pointer. Records are at registry+0x98 indexed by action id, with the count at registry+0xA4; the default record is at registry+0x110."
+    },
+    "input.action_registry_get": {
+      "rva": "0x534AE0",
+      "kind": "function",
+      "check": "48 8B 05 21 49 AD 00 C3 CC CC CC CC",
+      "note": "Returns the action registry: reads the input.action_registry global. What the by-id getters call before indexing registry+0x98."
+    },
+    "input.axis_pair": {
+      "rva": "0x5F5E10",
+      "kind": "function",
+      "check": "48 89 5C 24 08 48 89 74 24 10 57 48",
+      "note": "Input interface slot 22: (mode, idA, idB, check_focus) -> (value(idA) - value(idB)) through a response curve and the sensitivity for mode (0 mouse, 1 raw, 2 mouse without the curve constant, 3 alternative), clamped. The aim consumer calls it with mode 0, so its result is an angular rate in radians per second."
+    },
+    "input.click_by_id": {
+      "rva": "0x5F6C00",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 8B DA E8 D3 DE F3",
+      "note": "Input interface slot 18: click, state block flag bit 21, by action id."
+    },
     "input.device_update": {
       "rva": "0x351DE0",
       "kind": "function",
       "check": "41 57 48 83 EC 40 48 89 5C 24 58 4C",
       "note": "Raw mouse device update; copies and zeroes the accumulated frame delta."
+    },
+    "input.double_click_by_id": {
+      "rva": "0x5F5350",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 41 0F B6 C0 8B DA",
+      "note": "Input interface slot 15: double click, state block flag bit 6, by action id."
+    },
+    "input.double_click_by_record": {
+      "rva": "0x5F53C0",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 81 7A 74 01 00 FF",
+      "note": "Input interface slot 17: double click, state block flag bit 6, by record."
     },
     "input.has_game_focus": {
       "rva": "0x5F6900",
@@ -73,11 +108,71 @@
       "check": "48 83 EC 28 83 B9 D4 83 01 00 00 44",
       "note": "HasGameFocus(id); false while the focus counter is zero."
     },
+    "input.hold_begin_by_id": {
+      "rva": "0x5F5460",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 41 0F B6 C0 8B DA",
+      "note": "Input interface slot 12: hold begin, state block flag bit 4, by action id."
+    },
+    "input.hold_begin_by_record": {
+      "rva": "0x5F54D0",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 81 7A 74 01 00 FF",
+      "note": "Input interface slot 14: hold begin, state block flag bit 4, by record."
+    },
+    "input.hold_by_id": {
+      "rva": "0x5F5960",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 41 0F B6 C0 8B DA",
+      "note": "Input interface slot 9: hold, state block flag bit 3, by action id."
+    },
+    "input.hold_by_record": {
+      "rva": "0x5F59D0",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 81 7A 74 01 00 FF",
+      "note": "Input interface slot 11: hold, state block flag bit 3, by record."
+    },
+    "input.interface_for_player": {
+      "rva": "0x7031A0",
+      "kind": "function",
+      "check": "83 FA 02 74 1E 48 8B 41 48 48 85 C0",
+      "note": "Resolves the input interface a consumer reads from. Returns Input+0x28 for the local player; a replay source or the remote player's interface otherwise."
+    },
     "input.keyboard_poll": {
       "rva": "0x34FDF0",
       "kind": "function",
       "check": "48 89 5C 24 08 57 48 81 EC 20 01 00",
       "note": "Polled keyboard module; maps 256 virtual key slots through a table at Input+0x85D0."
+    },
+    "input.local_value": {
+      "rva": "0x536AE0",
+      "kind": "function",
+      "check": "48 8B 41 28 F3 0F 10 40 10 F3 0F 58",
+      "note": "LocalValue of a state block: the sum of the two floats at block+0x0C and block+0x10."
+    },
+    "input.player_controller_aim": {
+      "rva": "0x4F7A30",
+      "kind": "function",
+      "check": "48 8B C4 41 56 48 81 EC 90 00 00 00",
+      "note": "DayZPlayerInputController slot 7: aim. Calls the axis pair with mode 0 for (UAAimRight, UAAimLeft) and (UAAimDown, UAAimUp), clamps and multiplies by dt, which GetAimChange reports in radians."
+    },
+    "input.player_controller_update": {
+      "rva": "0x4F5D40",
+      "kind": "function",
+      "check": "48 8B C4 48 89 50 10 57 41 56 48 81",
+      "note": "DayZPlayerInputController slot 6: the per-frame on-foot update (self, player, dt). Builds movement from the UAMoveRight/Left/Forward/Back values, so this is the function that proves the engine consumes analogue action values. The vehicle (UACar*) consumer has not been found yet."
+    },
+    "input.press_by_id": {
+      "rva": "0x5F5A90",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 41 0F B6 C0 8B DA",
+      "note": "Input interface slot 3: press, state block flag bit 1, by action id."
+    },
+    "input.press_by_record": {
+      "rva": "0x5F5B00",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 81 7A 74 01 00 FF",
+      "note": "Input interface slot 5: press, state block flag bit 1, by record."
     },
     "input.record_ctor": {
       "rva": "0x53A430",
@@ -90,6 +185,42 @@
       "kind": "function",
       "check": "48 83 EC 38 83 B9 C0 00 00 00 00 74",
       "note": "One of the RegisterRawInputDevices call sites."
+    },
+    "input.release_by_id": {
+      "rva": "0x5F5BC0",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 41 0F B6 C0 8B DA",
+      "note": "Input interface slot 6: release, state block flag bit 2, by action id."
+    },
+    "input.release_by_record": {
+      "rva": "0x5F5C30",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 81 7A 74 01 00 FF",
+      "note": "Input interface slot 8: release, state block flag bit 2, by record."
+    },
+    "input.resolve_action_name": {
+      "rva": "0x534540",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 4C 8B CA 48 8B D9",
+      "note": "Resolves an action name to its record through the action registry. What input.value_by_name calls before the record variant."
+    },
+    "input.value_by_id": {
+      "rva": "0x5F5CF0",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 41 0F B6 C0 8B DA",
+      "note": "Input interface slot 0: LocalValue as a float, by action id. Analogue: the on-foot consumer builds movement from these values, so an analogue value gives an analogue speed."
+    },
+    "input.value_by_name": {
+      "rva": "0x5F5DA0",
+      "kind": "function",
+      "check": "48 89 5C 24 08 48 89 74 24 10 57 48",
+      "note": "Input interface slot 1: LocalValue by action name; resolves the name through input.resolve_action_name and calls input.value_by_record."
+    },
+    "input.value_by_record": {
+      "rva": "0x5F5D50",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 81 7A 74 01 00 FF",
+      "note": "Input interface slot 2: LocalValue as a float, by record. Checks record+0x74 != -0xFFFF, then sums the two floats in the active state block."
     },
     "render.dynamic_blur": {
       "rva": "0x22EF70",
@@ -237,9 +368,29 @@
       "value": "0x28",
       "note": "Pointer to the active state block of a UAInput record, +0x30 by default."
     },
+    "uainput.block_flags": {
+      "value": "0x4",
+      "note": "Flags inside a state block: bit 1 press, bit 2 release, bit 3 hold, bit 4 hold begin, bit 6 double click, bit 21 click. Each getter reads this word and shifts by its own bit."
+    },
+    "uainput.block_value_a": {
+      "value": "0xC",
+      "note": "First of the two floats inside a state block whose sum is LocalValue. Likely a per-device or per-alternative contribution; which is which is not established."
+    },
+    "uainput.block_value_b": {
+      "value": "0x10",
+      "note": "Second of the two floats inside a state block whose sum is LocalValue. This is where an analogue value has to end up for the engine to read it."
+    },
     "uainput.control_flags": {
       "value": "0x70",
       "note": "Control flags: 0x08 locked, 0x20 from the registry byte, 0x40 force enabled."
+    },
+    "uainput.record_default_check": {
+      "value": "0x74",
+      "note": "Compared against -0xFFFF (0xFFFF0001) by every by-record getter before it reads anything; the default record never reports."
+    },
+    "uainput.record_id": {
+      "value": "0x7C",
+      "note": "Action id of a record, the index into registry+0x98."
     },
     "uainput.state_block": {
       "value": "0x30",
