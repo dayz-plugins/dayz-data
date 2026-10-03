@@ -178,6 +178,10 @@
       "value": "0x118",
       "note": "Camera pointer read by the active camera state getter, which first checks +0x88 != -1."
     },
+    "render.prepared_view": {
+      "value": "0xA10",
+      "note": "View prepared for the current execute, inside the render context. Stored by the view setup, cleared by finalize, and loaded at render.execute_view+0x43 and dereferenced at +0x65 with no null check."
+    },
     "uainput.active_state": {
       "value": "0x28",
       "note": "Pointer to the active state block of a UAInput record, +0x30 by default."
