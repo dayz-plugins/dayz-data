@@ -86,7 +86,7 @@ signature, and it is the one part of this that a tool cannot do.
 Plugins can declare the symbols they cannot work without. A missing one keeps that plugin
 unloaded with its name in the log, instead of letting it run into a null dereference.
 
-In the game folder the database lives at `DayZ/dayz-plugins/data/`, and the loader's
+In the game folder the database lives at `DayZ/plugin-loader/data/`, and the loader's
 `scripts/build.sh --deploy` copies it there from a checkout of this repository.
 
 ## Current contents
