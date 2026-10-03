@@ -5,7 +5,8 @@
     "executable": "DayZDiag_x64.exe",
     "pe_timestamp": "0x6A47BAF9",
     "image_size": "0x49E7000",
-    "provenance": "external"
+    "provenance": "external",
+    "_comment": "DayZ-VR names no game version anywhere: it identifies builds by PE timestamp and SizeOfImage only, which is what this file is named after. The timestamp decodes to 2026-07-03, about a month before 1.29.163709 (2026-08-05)."
   },
   "symbols": {
     "engine.singleton": {

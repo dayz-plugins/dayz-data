@@ -104,10 +104,13 @@ disassembler and resolved against the real executable, not yet exercised by a ru
 
 The two `external` builds are an older game version and its Diag executable, extracted from
 [maksidze/DayZ-VR](https://github.com/maksidze/DayZ-VR), which gated on the PE timestamp and
-carried no byte signatures. They have no hash and no checks, so for those builds a wrong
-address cannot be caught at load time; the loader says so in a warning. They are here because
-they make a second data point for every symbol, which is what tells a pattern from a
-coincidence.
+carried no byte signatures. They are named after that timestamp because that project never
+names a game version: its README and its runtime probe identify builds purely by PE timestamp
+and `SizeOfImage`. The timestamps decode to 2026-07-03, about a month before 1.29.163709.
+
+They have no hash and no checks, so for those builds a wrong address cannot be caught at load
+time; the loader says so in a warning. They are here because they make a second data point for
+every symbol, which is what tells a pattern from a coincidence.
 
 ## License
 
