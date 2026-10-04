@@ -21,6 +21,136 @@
       "note": "Camera field of view update; hooked to override the gameplay value.",
       "since": "1.29.163709"
     },
+    "chat.local": {
+      "patterns": [
+        "48 89 5C 24 08 57 48 83 EC 40 48 C7 44 24 60 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.Chat(this, RefString *text, RefString *colourClass): puts a line in this client's chat only.",
+      "since": "1.29.163709"
+    },
+    "chat.raise_message": {
+      "patterns": [
+        "48 89 5C 24 08 48 89 74 24 18 55 57 41 54 41 56 41 57 48 8D"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Builds and raises ChatMessageEvent: (game, int channel, RefString *from, RefString *text, RefString *colourClass). Every chat line the client shows passes through here; not calling the original swallows it.",
+      "since": "1.29.163709"
+    },
+    "chat.say": {
+      "patterns": [
+        "48 83 EC 28 48 C7 44 24 40 00 00 00 00 48 85 D2 74 34 48 8B CA E8 46 07"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.ChatPlayer(this, RefString *text): says it as the player, on the current channel.",
+      "since": "1.29.163709"
+    },
+    "chat.to_player": {
+      "patterns": [
+        "48 85 D2 0F 84 CA 00 00 00 56 48 83"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.ChatMP(this, Man *recipient, RefString *text, RefString *colourClass): server side, to one player.",
+      "since": "1.29.163709"
+    },
+    "event.chatmessage_name_of": {
+      "patterns": [
+        "48 8D 05 79 BE 5C 00 48 89 02 48 8B"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "ChatMessageEvent vtable slot 2: writes the literal \"ChatMessageEvent\" into the out-parameter. How a hook names an event without a table of ids.",
+      "since": "1.29.163709"
+    },
+    "event.chatmessage_type_of": {
+      "patterns": [
+        "48 8D 05 A9 CA 83 00 48 89 02 48 8B"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "ChatMessageEvent vtable slot 1: writes &game::ChatMessageEvent::RTTI_Type_Descriptor into the out-parameter. 14 bytes, no side effects.",
+      "since": "1.29.163709"
+    },
+    "event.dispatch_to_script": {
+      "patterns": [
+        "48 89 5C 24 18 48 89 74 24 20 57 48 83 EC 40 83"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Calls script CGame.OnEvent(type, params). Reads the EventType from vtable slot 1 of the event; returns 1 when script handled it, which skips event.engine_default. Hook point for listening to and swallowing events.",
+      "since": "1.29.163709"
+    },
+    "event.engine_default": {
+      "patterns": [
+        "80 B9 A9 00 00 00 00 74 03 32 C0 C3"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "The engine's own handling of an event script did not take.",
+      "since": "1.29.163709"
+    },
+    "event.manager": {
+      "patterns": [
+        "48 8B 05 09 90 E1 00 C3 CC CC CC CC"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Returns the event manager both inspected event raisers hand their event to.",
+      "since": "1.29.163709"
+    },
+    "event.raise": {
+      "patterns": [
+        "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 33 FF 48 8B EA 48 8B D9"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Raise one event: (manager, &event). Sees every event, including those that never reach script.",
+      "since": "1.29.163709"
+    },
+    "event.raise_connection_close": {
+      "patterns": [
+        "40 55 56 48 83 EC 58 48 8D 05 22 D3"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Builds and raises MPConnectionCloseEvent, the kick and disconnect event, through event.raise.",
+      "since": "1.29.163709"
+    },
+    "event.register_type_ids": {
+      "patterns": [
+        "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 45 33 C0 48 8D"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Assigns every XEventTypeID script global the address of that event class's RTTI type descriptor. EventType is a type pointer, not a number.",
+      "since": "1.29.163709"
+    },
+    "event.script_marshaller": {
+      "patterns": [
+        "40 55 53 56 48 8D AC 24 00 FF FF FF"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Third referrer of the \"OnEvent\" string, 4936 bytes, unread. The likeliest home of the per-event-class conversion from a native event to script's Param; reading it is what unblocks reading an event's contents from a hook.",
+      "since": "1.29.163709"
+    },
     "gui.hud_layout": {
       "patterns": [
         "40 53 48 83 EC 60 48 8B 01 48 8B D9 0F 29 74 24"
@@ -381,6 +511,66 @@
       "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit.",
       "since": "1.29.163709"
     },
+    "rpc.dispatch_to_script": {
+      "patterns": [
+        "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 50 8B 05 66 6B"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Calls script OnRPC(sender, target, rpc_type, ctx). Hook point for listening to incoming RPCs.",
+      "since": "1.29.163709"
+    },
+    "rpc.send": {
+      "patterns": [
+        "48 83 EC 48 48 8B 44 24 78 C6 44 24 30 00 48 89 44 24 28 0F B6 44 24 70 88 44 24 20 E8 0F 02 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.RPC(this, target, rpcType, params, guaranteed, recipient).",
+      "since": "1.29.163709"
+    },
+    "rpc.send_self": {
+      "patterns": [
+        "48 83 EC 48 C6 44 24 30 01 48 C7 44 24 28 00 00 00 00 C6 44 24 20 01 E8 E4 01 00 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.RPCSelf: delivered in this process only, never on the wire.",
+      "since": "1.29.163709"
+    },
+    "rpc.send_self_single": {
+      "patterns": [
+        "48 83 EC 48 C6 44 24 30 01 48 C7 44 24 28 00 00 00 00 C6 44 24 20 01 E8 04 04 00 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.RPCSelfSingleParam.",
+      "since": "1.29.163709"
+    },
+    "rpc.send_single": {
+      "patterns": [
+        "48 83 EC 48 48 8B 44 24 78 C6 44 24 30 00 48 89 44 24 28 0F B6 44 24 70 88 44 24 20 E8 CF 03 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.RPCSingleParam; same as rpc.send with one Param instead of an array.",
+      "since": "1.29.163709"
+    },
+    "script.call_method": {
+      "patterns": [
+        "44 89 44 24 18 4C 89 4C 24 20 53 48"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Call a script method by id: (object, out, id, a, b, c, d). What the engine's own dispatchers use.",
+      "since": "1.29.163709"
+    },
     "script.cfgmods_read": {
       "patterns": [
         "4C 8D 05 DF A9 82 00 48 8D 55 B0 48"
@@ -389,6 +579,16 @@
         "kind": "direct"
       },
       "note": "First of four references to the CfgMods config class name in the mod setup function; a fifth is at 0x5977EB.",
+      "since": "1.29.163709"
+    },
+    "script.cgame_registrator": {
+      "patterns": [
+        "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 49 8B F8 4C 8D 0D 27 BA FF"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Registers the CGame script class and binds every one of its natives as an ordinary member function pointer.",
       "since": "1.29.163709"
     },
     "script.load_script_retail_gate": {
@@ -409,6 +609,16 @@
         "kind": "direct"
       },
       "note": "Whole native body bound to ScriptModule.LoadScript on retail: log the refusal, return null. Registered as the static method at script.scriptmodule_registrator + 0xC4.",
+      "since": "1.29.163709"
+    },
+    "script.method_id": {
+      "patterns": [
+        "48 89 5C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B FA 48 8B D9 48 85 C9"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "Resolve a method name on a script class to the id script.call_method takes.",
       "since": "1.29.163709"
     },
     "script.module_config_add": {
@@ -459,6 +669,116 @@
         "kind": "direct"
       },
       "note": "Registration of the ScriptModule script class and its methods: Call 0x31AAA0, CallFunction 0x31ACE0, CallFunctionParams 0x31AEF0, Release 0x2E7420, LoadScript 0x2D9A30.",
+      "since": "1.29.163709"
+    },
+    "session.connect": {
+      "patterns": [
+        "48 89 5C 24 20 55 41 54 41 57 48 83 EC 60 45 8B"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.Connect(this, parent menu, RefString *address, int port, RefString *password).",
+      "since": "1.29.163709"
+    },
+    "session.connect_last": {
+      "patterns": [
+        "48 8B C4 48 89 50 10 48 89 48 08 55 53 57 48 8D"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.ConnectLastSession(this, parent menu, int selectedCharacter).",
+      "since": "1.29.163709"
+    },
+    "session.disconnect": {
+      "patterns": [
+        "40 53 48 83 EC 20 48 8B D9 E8 92 18"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.DisconnectSession(this).",
+      "since": "1.29.163709"
+    },
+    "session.disconnect_force": {
+      "patterns": [
+        "40 53 48 83 EC 20 48 8B D9 E8 62 18"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.DisconnectSessionForce(this).",
+      "since": "1.29.163709"
+    },
+    "session.host_address": {
+      "patterns": [
+        "48 89 5C 24 10 48 89 74 24 18 57 48 81 EC 40 01"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.GetHostAddress(this, out address, out port): which server this client is on.",
+      "since": "1.29.163709"
+    },
+    "session.host_data": {
+      "patterns": [
+        "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 49 8B 18 49 8B"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.GetHostData(this).",
+      "since": "1.29.163709"
+    },
+    "session.host_name": {
+      "patterns": [
+        "48 89 5C 24 08 57 48 83 EC 20 48 8B B9 50 01 00"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.GetHostName(this, out name).",
+      "since": "1.29.163709"
+    },
+    "session.is_client": {
+      "patterns": [
+        "48 83 EC 28 E8 C7 CB 14 00 48 8B C8"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.IsClient(this). See session.is_multiplayer.",
+      "since": "1.29.163709"
+    },
+    "session.is_multiplayer": {
+      "patterns": [
+        "48 83 EC 28 E8 57 CB 14 00 48 83 78"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.IsMultiplayer(this). A cheap side-effect-free predicate, so also the way to test a candidate CGame pointer.",
+      "since": "1.29.163709"
+    },
+    "session.request_exit": {
+      "patterns": [
+        "48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 2C F0 FD FF"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.RequestExit(this, int code): stores the code at this+0xD8 and sets the exit flag; the main loop stops at the next frame.",
+      "since": "1.29.163709"
+    },
+    "session.request_restart": {
+      "patterns": [
+        "48 89 5C 24 08 57 48 83 EC 20 8B DA C6 05 6E 27"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "CGame.RequestRestart(this, int code).",
       "since": "1.29.163709"
     }
   }

@@ -33,10 +33,103 @@
       "kind": "global",
       "note": "Float global holding the loaded DayZProfile field of view."
     },
+    "chat.local": {
+      "rva": "0x5AD300",
+      "kind": "function",
+      "check": "48 89 5C 24 08 57 48 83 EC 40 48 C7",
+      "note": "CGame.Chat(this, RefString *text, RefString *colourClass): puts a line in this client's chat only."
+    },
+    "chat.raise_message": {
+      "rva": "0x719B90",
+      "kind": "function",
+      "check": "48 89 5C 24 08 48 89 74 24 18 55 57",
+      "note": "Builds and raises ChatMessageEvent: (game, int channel, RefString *from, RefString *text, RefString *colourClass). Every chat line the client shows passes through here; not calling the original swallows it."
+    },
+    "chat.say": {
+      "rva": "0x5AD4B0",
+      "kind": "function",
+      "check": "48 83 EC 28 48 C7 44 24 40 00 00 00",
+      "note": "CGame.ChatPlayer(this, RefString *text): says it as the player, on the current channel."
+    },
+    "chat.to_player": {
+      "rva": "0x5AD3D0",
+      "kind": "function",
+      "check": "48 85 D2 0F 84 CA 00 00 00 56 48 83",
+      "note": "CGame.ChatMP(this, Man *recipient, RefString *text, RefString *colourClass): server side, to one player."
+    },
     "engine.singleton": {
       "rva": "0x42626D0",
       "kind": "global",
       "note": "Root engine object pointer."
+    },
+    "event.chatmessage_name_of": {
+      "rva": "0x71B5A0",
+      "kind": "function",
+      "check": "48 8D 05 79 BE 5C 00 48 89 02 48 8B",
+      "note": "ChatMessageEvent vtable slot 2: writes the literal \"ChatMessageEvent\" into the out-parameter. How a hook names an event without a table of ids."
+    },
+    "event.chatmessage_type_of": {
+      "rva": "0x71B4D0",
+      "kind": "function",
+      "check": "48 8D 05 A9 CA 83 00 48 89 02 48 8B",
+      "note": "ChatMessageEvent vtable slot 1: writes &game::ChatMessageEvent::RTTI_Type_Descriptor into the out-parameter. 14 bytes, no side effects."
+    },
+    "event.chatmessage_vftable": {
+      "rva": "0xCE73F0",
+      "kind": "global",
+      "note": "game::ChatMessageEvent vftable. Slot 1 returns the EventType, slot 2 the class name as text; every event class inspected has the same six-slot shape."
+    },
+    "event.connectionclose_vftable": {
+      "rva": "0xCE72F0",
+      "kind": "global",
+      "note": "game::MPConnectionCloseEvent vftable; the kick event. See event.chatmessage_vftable for the slot meanings."
+    },
+    "event.dispatch_to_script": {
+      "rva": "0x5CACD0",
+      "kind": "function",
+      "check": "48 89 5C 24 18 48 89 74 24 20 57 48",
+      "note": "Calls script CGame.OnEvent(type, params). Reads the EventType from vtable slot 1 of the event; returns 1 when script handled it, which skips event.engine_default. Hook point for listening to and swallowing events."
+    },
+    "event.engine_default": {
+      "rva": "0x5CACB0",
+      "kind": "function",
+      "check": "80 B9 A9 00 00 00 00 74 03 32 C0 C3",
+      "note": "The engine's own handling of an event script did not take."
+    },
+    "event.manager": {
+      "rva": "0x1D2BD0",
+      "kind": "function",
+      "check": "48 8B 05 09 90 E1 00 C3 CC CC CC CC",
+      "note": "Returns the event manager both inspected event raisers hand their event to."
+    },
+    "event.onevent_method_id": {
+      "rva": "0xF226A0",
+      "kind": "global",
+      "note": "Cached script method id for CGame.OnEvent, -1 until event.dispatch_to_script first resolves it."
+    },
+    "event.raise": {
+      "rva": "0x1D6260",
+      "kind": "function",
+      "check": "48 89 5C 24 08 48 89 6C 24 10 48 89",
+      "note": "Raise one event: (manager, &event). Sees every event, including those that never reach script."
+    },
+    "event.raise_connection_close": {
+      "rva": "0x719F70",
+      "kind": "function",
+      "check": "40 55 56 48 83 EC 58 48 8D 05 22 D3",
+      "note": "Builds and raises MPConnectionCloseEvent, the kick and disconnect event, through event.raise."
+    },
+    "event.register_type_ids": {
+      "rva": "0x5B77C0",
+      "kind": "function",
+      "check": "48 89 5C 24 08 48 89 74 24 10 57 48",
+      "note": "Assigns every XEventTypeID script global the address of that event class's RTTI type descriptor. EventType is a type pointer, not a number."
+    },
+    "event.script_marshaller": {
+      "rva": "0x5B8560",
+      "kind": "function",
+      "check": "40 55 53 56 48 8D AC 24 00 FF FF FF",
+      "note": "Third referrer of the \"OnEvent\" string, 4936 bytes, unread. The likeliest home of the per-event-class conversion from a native event to script's Param; reading it is what unblocks reading an event's contents from a hook."
     },
     "gui.hud_layout": {
       "rva": "0x8A2280",
@@ -269,11 +362,58 @@
       "check": "48 89 6C 24 18 57 41 56 41 57 48 83",
       "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit."
     },
+    "rpc.dispatch_to_script": {
+      "rva": "0x5BB620",
+      "kind": "function",
+      "check": "48 89 5C 24 08 48 89 6C 24 10 48 89",
+      "note": "Calls script OnRPC(sender, target, rpc_type, ctx). Hook point for listening to incoming RPCs."
+    },
+    "rpc.onrpc_method_id": {
+      "rva": "0xF221A0",
+      "kind": "global",
+      "note": "Cached script method id for OnRPC, -1 until rpc.dispatch_to_script first resolves it."
+    },
+    "rpc.send": {
+      "rva": "0x5BCF70",
+      "kind": "function",
+      "check": "48 83 EC 48 48 8B 44 24 78 C6 44 24",
+      "note": "CGame.RPC(this, target, rpcType, params, guaranteed, recipient)."
+    },
+    "rpc.send_self": {
+      "rva": "0x5BCFA0",
+      "kind": "function",
+      "check": "48 83 EC 48 C6 44 24 30 01 48 C7 44",
+      "note": "CGame.RPCSelf: delivered in this process only, never on the wire."
+    },
+    "rpc.send_self_single": {
+      "rva": "0x5BCFD0",
+      "kind": "function",
+      "check": "48 83 EC 48 C6 44 24 30 01 48 C7 44",
+      "note": "CGame.RPCSelfSingleParam."
+    },
+    "rpc.send_single": {
+      "rva": "0x5BD000",
+      "kind": "function",
+      "check": "48 83 EC 48 48 8B 44 24 78 C6 44 24",
+      "note": "CGame.RPCSingleParam; same as rpc.send with one Param instead of an array."
+    },
+    "script.call_method": {
+      "rva": "0x317060",
+      "kind": "function",
+      "check": "44 89 44 24 18 4C 89 4C 24 20 53 48",
+      "note": "Call a script method by id: (object, out, id, a, b, c, d). What the engine's own dispatchers use."
+    },
     "script.cfgmods_read": {
       "rva": "0x43F6F2",
       "kind": "instruction",
       "check": "4C 8D 05 DF A9 82 00 48 8D 55 B0 48",
       "note": "First of four references to the CfgMods config class name in the mod setup function; a fifth is at 0x5977EB."
+    },
+    "script.cgame_registrator": {
+      "rva": "0x5B9D80",
+      "kind": "function",
+      "check": "48 89 5C 24 08 48 89 74 24 10 57 48",
+      "note": "Registers the CGame script class and binds every one of its natives as an ordinary member function pointer."
     },
     "script.load_script_retail_gate": {
       "rva": "0x2D9A3B",
@@ -286,6 +426,12 @@
       "kind": "function",
       "check": "48 83 EC 28 48 8B 0D F5 80 D1 00 48",
       "note": "Whole native body bound to ScriptModule.LoadScript on retail: log the refusal, return null. Registered as the static method at script.scriptmodule_registrator + 0xC4."
+    },
+    "script.method_id": {
+      "rva": "0x319210",
+      "kind": "function",
+      "check": "48 89 5C 24 10 48 89 74 24 18 57 48",
+      "note": "Resolve a method name on a script class to the id script.call_method takes."
     },
     "script.module_config_add": {
       "rva": "0x4CA7E0",
@@ -321,6 +467,77 @@
       "kind": "instruction",
       "check": "48 8B 8B 30 04 00 00 4C 8D 05 17 0D",
       "note": "Registration of the ScriptModule script class and its methods: Call 0x31AAA0, CallFunction 0x31ACE0, CallFunctionParams 0x31AEF0, Release 0x2E7420, LoadScript 0x2D9A30."
+    },
+    "session.connect": {
+      "rva": "0x5AFFA0",
+      "kind": "function",
+      "check": "48 89 5C 24 20 55 41 54 41 57 48 83",
+      "note": "CGame.Connect(this, parent menu, RefString *address, int port, RefString *password)."
+    },
+    "session.connect_last": {
+      "rva": "0x5AFB20",
+      "kind": "function",
+      "check": "48 8B C4 48 89 50 10 48 89 48 08 55",
+      "note": "CGame.ConnectLastSession(this, parent menu, int selectedCharacter)."
+    },
+    "session.disconnect": {
+      "rva": "0x5B1D10",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 48 8B D9 E8 92 18",
+      "note": "CGame.DisconnectSession(this)."
+    },
+    "session.disconnect_force": {
+      "rva": "0x5B1D40",
+      "kind": "function",
+      "check": "40 53 48 83 EC 20 48 8B D9 E8 62 18",
+      "note": "CGame.DisconnectSessionForce(this)."
+    },
+    "session.exit_requested": {
+      "rva": "0x426F290",
+      "kind": "global",
+      "note": "Set to 1 by session.request_exit; the main loop stops at the next frame. The exit code is written to CGame+0xD8 just before."
+    },
+    "session.host_address": {
+      "rva": "0x5B3080",
+      "kind": "function",
+      "check": "48 89 5C 24 10 48 89 74 24 18 57 48",
+      "note": "CGame.GetHostAddress(this, out address, out port): which server this client is on."
+    },
+    "session.host_data": {
+      "rva": "0x5B3260",
+      "kind": "function",
+      "check": "48 89 5C 24 08 48 89 74 24 10 57 48",
+      "note": "CGame.GetHostData(this)."
+    },
+    "session.host_name": {
+      "rva": "0x5B3340",
+      "kind": "function",
+      "check": "48 89 5C 24 08 57 48 83 EC 20 48 8B",
+      "note": "CGame.GetHostName(this, out name)."
+    },
+    "session.is_client": {
+      "rva": "0x5B69F0",
+      "kind": "function",
+      "check": "48 83 EC 28 E8 C7 CB 14 00 48 8B C8",
+      "note": "CGame.IsClient(this). See session.is_multiplayer."
+    },
+    "session.is_multiplayer": {
+      "rva": "0x5B6A60",
+      "kind": "function",
+      "check": "48 83 EC 28 E8 57 CB 14 00 48 83 78",
+      "note": "CGame.IsMultiplayer(this). A cheap side-effect-free predicate, so also the way to test a candidate CGame pointer."
+    },
+    "session.request_exit": {
+      "rva": "0x5BCAC0",
+      "kind": "function",
+      "check": "48 89 5C 24 08 57 48 83 EC 20 8B DA",
+      "note": "CGame.RequestExit(this, int code): stores the code at this+0xD8 and sets the exit flag; the main loop stops at the next frame."
+    },
+    "session.request_restart": {
+      "rva": "0x5BCB10",
+      "kind": "function",
+      "check": "48 89 5C 24 08 57 48 83 EC 20 8B DA",
+      "note": "CGame.RequestRestart(this, int code)."
     }
   },
   "offsets": {
