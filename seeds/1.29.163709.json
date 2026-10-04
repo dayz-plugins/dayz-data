@@ -75,6 +75,11 @@
       "rva": "0x1D2BD0",
       "note": "Returns the event manager both inspected event raisers hand their event to."
     },
+    "event.manager_instance": {
+      "rva": "0xFEBBE0",
+      "kind": "global",
+      "note": "The event manager pointer itself: event.manager is a one-instruction getter that returns this global. It is the `this` every event.raise call takes, so a hook on event.raise sees every event raised in the process."
+    },
     "event.onevent_method_id": {
       "rva": "0xF226A0",
       "kind": "global",
@@ -381,6 +386,10 @@
     "session.request_restart": {
       "rva": "0x5BCB10",
       "note": "CGame.RequestRestart(this, int code)."
+    },
+    "string.holder_create": {
+      "rva": "0x5DC10",
+      "note": "enf::BasicStringHolder<char> from a C string: allocates length + 0x18 and writes refcount 0, length, then the characters. An empty string returns null rather than an empty holder, which is why a null holder has to read as \"\"."
     }
   },
   "offsets": {
@@ -391,6 +400,30 @@
     "camera.transform_rotation": {
       "value": "0x50",
       "note": "Gameplay camera 3x3 rotation inside the camera manager, rows at +0x50, +0x5C and +0x68."
+    },
+    "event.handler_count": {
+      "value": "0x1F4",
+      "note": "Count for event.handlers."
+    },
+    "event.handlers": {
+      "value": "0x1E8",
+      "note": "Second listener array on the event manager; event.raise calls vtable slot 15 (+0x78) on each entry after the first array."
+    },
+    "event.listener_count": {
+      "value": "0x214",
+      "note": "Count for event.listeners."
+    },
+    "event.listeners": {
+      "value": "0x208",
+      "note": "First listener array on the event manager; event.raise calls vtable slot 1 (+0x08) on each entry with the event."
+    },
+    "event.vtable_name": {
+      "value": "0x10",
+      "note": "Event vtable slot 2: fn(event, char **out) writes the class name as a literal, e.g. \"ChatMessageEvent\", and returns out. 14 bytes and side-effect free in every event class inspected, which is how a hook names an event it has never seen."
+    },
+    "event.vtable_type": {
+      "value": "0x08",
+      "note": "Event vtable slot 1: fn(event, void **out) writes &<class>::RTTI_Type_Descriptor, the EventType the script dispatcher compares against."
     },
     "framebase.rotation": {
       "value": "0x08",
@@ -424,6 +457,22 @@
       "value": "0xA10",
       "note": "View prepared for the current execute, inside the render context. Stored by the view setup, cleared by finalize, and loaded at render.execute_view+0x43 and dereferenced at +0x65 with no null check."
     },
+    "string.data": {
+      "value": "0x10",
+      "note": "Characters of an enf::BasicStringHolder<char>, NUL terminated."
+    },
+    "string.length": {
+      "value": "0x08",
+      "note": "Length in bytes of an enf::BasicStringHolder<char>, excluding the terminator."
+    },
+    "string.refcount": {
+      "value": "0x0",
+      "note": "Reference count of an enf::BasicStringHolder<char>; the engine touches it with LOCK INC / LOCK DEC and frees at one."
+    },
+    "uainput.active_state": {
+      "value": "0x28",
+      "note": "Pointer to the active state block of a UAInput record, +0x30 by default."
+    },
     "uainput.block_flags": {
       "value": "0x4",
       "note": "Flags inside a state block: bit 1 press, bit 2 release, bit 3 hold, bit 4 hold begin, bit 6 double click, bit 21 click. Each getter reads this word and shifts by its own bit."
@@ -436,6 +485,10 @@
       "value": "0x10",
       "note": "Second of the two floats inside a state block whose sum is LocalValue. This is where an analogue value has to end up for the engine to read it."
     },
+    "uainput.control_flags": {
+      "value": "0x70",
+      "note": "Control flags: 0x08 locked, 0x20 from the registry byte, 0x40 force enabled."
+    },
     "uainput.record_default_check": {
       "value": "0x74",
       "note": "Compared against -0xFFFF (0xFFFF0001) by every by-record getter before it reads anything; the default record never reports."
@@ -443,14 +496,6 @@
     "uainput.record_id": {
       "value": "0x7C",
       "note": "Action id of a record, the index into registry+0x98."
-    },
-    "uainput.active_state": {
-      "value": "0x28",
-      "note": "Pointer to the active state block of a UAInput record, +0x30 by default."
-    },
-    "uainput.control_flags": {
-      "value": "0x70",
-      "note": "Control flags: 0x08 locked, 0x20 from the registry byte, 0x40 force enabled."
     },
     "uainput.state_block": {
       "value": "0x30",

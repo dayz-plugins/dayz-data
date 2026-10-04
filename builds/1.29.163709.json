@@ -102,6 +102,11 @@
       "check": "48 8B 05 09 90 E1 00 C3 CC CC CC CC",
       "note": "Returns the event manager both inspected event raisers hand their event to."
     },
+    "event.manager_instance": {
+      "rva": "0xFEBBE0",
+      "kind": "global",
+      "note": "The event manager pointer itself: event.manager is a one-instruction getter that returns this global. It is the `this` every event.raise call takes, so a hook on event.raise sees every event raised in the process."
+    },
     "event.onevent_method_id": {
       "rva": "0xF226A0",
       "kind": "global",
@@ -538,6 +543,12 @@
       "kind": "function",
       "check": "48 89 5C 24 08 57 48 83 EC 20 8B DA",
       "note": "CGame.RequestRestart(this, int code)."
+    },
+    "string.holder_create": {
+      "rva": "0x5DC10",
+      "kind": "function",
+      "check": "40 57 48 83 EC 20 80 39 00 48 8B F9",
+      "note": "enf::BasicStringHolder<char> from a C string: allocates length + 0x18 and writes refcount 0, length, then the characters. An empty string returns null rather than an empty holder, which is why a null holder has to read as \"\"."
     }
   },
   "offsets": {
@@ -548,6 +559,30 @@
     "camera.transform_rotation": {
       "value": "0x50",
       "note": "Gameplay camera 3x3 rotation inside the camera manager, rows at +0x50, +0x5C and +0x68."
+    },
+    "event.handler_count": {
+      "value": "0x1F4",
+      "note": "Count for event.handlers."
+    },
+    "event.handlers": {
+      "value": "0x1E8",
+      "note": "Second listener array on the event manager; event.raise calls vtable slot 15 (+0x78) on each entry after the first array."
+    },
+    "event.listener_count": {
+      "value": "0x214",
+      "note": "Count for event.listeners."
+    },
+    "event.listeners": {
+      "value": "0x208",
+      "note": "First listener array on the event manager; event.raise calls vtable slot 1 (+0x08) on each entry with the event."
+    },
+    "event.vtable_name": {
+      "value": "0x10",
+      "note": "Event vtable slot 2: fn(event, char **out) writes the class name as a literal, e.g. \"ChatMessageEvent\", and returns out. 14 bytes and side-effect free in every event class inspected, which is how a hook names an event it has never seen."
+    },
+    "event.vtable_type": {
+      "value": "0x8",
+      "note": "Event vtable slot 1: fn(event, void **out) writes &<class>::RTTI_Type_Descriptor, the EventType the script dispatcher compares against."
     },
     "framebase.rotation": {
       "value": "0x8",
@@ -580,6 +615,18 @@
     "render.prepared_view": {
       "value": "0xA10",
       "note": "View prepared for the current execute, inside the render context. Stored by the view setup, cleared by finalize, and loaded at render.execute_view+0x43 and dereferenced at +0x65 with no null check."
+    },
+    "string.data": {
+      "value": "0x10",
+      "note": "Characters of an enf::BasicStringHolder<char>, NUL terminated."
+    },
+    "string.length": {
+      "value": "0x8",
+      "note": "Length in bytes of an enf::BasicStringHolder<char>, excluding the terminator."
+    },
+    "string.refcount": {
+      "value": "0x0",
+      "note": "Reference count of an enf::BasicStringHolder<char>; the engine touches it with LOCK INC / LOCK DEC and frees at one."
     },
     "uainput.active_state": {
       "value": "0x28",

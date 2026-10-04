@@ -780,6 +780,16 @@
       },
       "note": "CGame.RequestRestart(this, int code).",
       "since": "1.29.163709"
+    },
+    "string.holder_create": {
+      "patterns": [
+        "40 57 48 83 EC 20 80 39 00 48 8B F9 75 08 33 C0 48 83 C4 20 5F C3 48 89"
+      ],
+      "resolve": {
+        "kind": "direct"
+      },
+      "note": "enf::BasicStringHolder<char> from a C string: allocates length + 0x18 and writes refcount 0, length, then the characters. An empty string returns null rather than an empty holder, which is why a null holder has to read as \"\".",
+      "since": "1.29.163709"
     }
   }
 }
