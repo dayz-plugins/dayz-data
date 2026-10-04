@@ -1,505 +1,977 @@
 {
-  "version": "1.29.163709",
-  "_comment": [
-    "Addresses established by reverse engineering DayZ 1.29.163709 and documented in",
-    "dayz-plugins.github.io/research/. This seed is the input to `dayz-data generate`,",
-    "which fills in the byte checks, the candidate patterns and the build metadata."
-  ],
-  "symbols": {
-    "camera.active_state": {
-      "rva": "0x4B6BE0",
-      "note": "Active camera state getter; checks +0x88 != -1 then reads +0x118."
-    },
-    "camera.fov_update": {
-      "rva": "0x4B7AD0",
-      "note": "Camera field of view update; hooked to override the gameplay value."
-    },
-    "camera.manager": {
-      "rva": "0x1007CE0",
-      "kind": "global",
-      "note": "Camera manager pointer, passed to the active camera state getter."
-    },
-    "camera.profile_fov": {
-      "rva": "0x1007E00",
-      "kind": "global",
-      "note": "Float global holding the loaded DayZProfile field of view."
-    },
-    "chat.local": {
-      "rva": "0x5AD300",
-      "note": "CGame.Chat(this, RefString *text, RefString *colourClass): puts a line in this client's chat only."
-    },
-    "chat.raise_message": {
-      "rva": "0x719B90",
-      "note": "Builds and raises ChatMessageEvent: (game, int channel, RefString *from, RefString *text, RefString *colourClass). Every chat line the client shows passes through here; not calling the original swallows it."
-    },
-    "chat.say": {
-      "rva": "0x5AD4B0",
-      "note": "CGame.ChatPlayer(this, RefString *text): says it as the player, on the current channel."
-    },
-    "chat.to_player": {
-      "rva": "0x5AD3D0",
-      "note": "CGame.ChatMP(this, Man *recipient, RefString *text, RefString *colourClass): server side, to one player."
-    },
-    "engine.singleton": {
-      "rva": "0x42626D0",
-      "kind": "global",
-      "note": "Root engine object pointer."
-    },
-    "event.chatmessage_name_of": {
-      "rva": "0x71B5A0",
-      "note": "ChatMessageEvent vtable slot 2: writes the literal \"ChatMessageEvent\" into the out-parameter. How a hook names an event without a table of ids."
-    },
-    "event.chatmessage_type_of": {
-      "rva": "0x71B4D0",
-      "note": "ChatMessageEvent vtable slot 1: writes &game::ChatMessageEvent::RTTI_Type_Descriptor into the out-parameter. 14 bytes, no side effects."
-    },
-    "event.chatmessage_vftable": {
-      "rva": "0xCE73F0",
-      "kind": "global",
-      "note": "game::ChatMessageEvent vftable. Slot 1 returns the EventType, slot 2 the class name as text; every event class inspected has the same six-slot shape."
-    },
-    "event.connectionclose_vftable": {
-      "rva": "0xCE72F0",
-      "kind": "global",
-      "note": "game::MPConnectionCloseEvent vftable; the kick event. See event.chatmessage_vftable for the slot meanings."
-    },
-    "event.dispatch_to_script": {
-      "rva": "0x5CACD0",
-      "note": "Calls script CGame.OnEvent(type, params). Reads the EventType from vtable slot 1 of the event; returns 1 when script handled it, which skips event.engine_default. Hook point for listening to and swallowing events."
-    },
-    "event.engine_default": {
-      "rva": "0x5CACB0",
-      "note": "The engine's own handling of an event script did not take."
-    },
-    "event.manager": {
-      "rva": "0x1D2BD0",
-      "note": "Returns the event manager both inspected event raisers hand their event to."
-    },
-    "event.manager_instance": {
-      "rva": "0xFEBBE0",
-      "kind": "global",
-      "note": "The event manager pointer itself: event.manager is a one-instruction getter that returns this global. It is the `this` every event.raise call takes, so a hook on event.raise sees every event raised in the process."
-    },
-    "event.onevent_method_id": {
-      "rva": "0xF226A0",
-      "kind": "global",
-      "note": "Cached script method id for CGame.OnEvent, -1 until event.dispatch_to_script first resolves it."
-    },
-    "event.raise": {
-      "rva": "0x1D6260",
-      "note": "Raise one event: (manager, &event). Sees every event, including those that never reach script."
-    },
-    "event.raise_connection_close": {
-      "rva": "0x719F70",
-      "note": "Builds and raises MPConnectionCloseEvent, the kick and disconnect event, through event.raise."
-    },
-    "event.register_type_ids": {
-      "rva": "0x5B77C0",
-      "note": "Assigns every XEventTypeID script global the address of that event class's RTTI type descriptor. EventType is a type pointer, not a number."
-    },
-    "event.script_marshaller": {
-      "rva": "0x5B8560",
-      "note": "Third referrer of the \"OnEvent\" string, 4936 bytes, unread. The likeliest home of the per-event-class conversion from a native event to script's Param; reading it is what unblocks reading an event's contents from a hook."
-    },
-    "gui.hud_layout": {
-      "rva": "0x8A2280",
-      "note": "GetHudContentRect; hooked to read the HUD content rectangle."
-    },
-    "gui.input_handler": {
-      "rva": "0x350B60",
-      "note": "Window message handler and WM_INPUT consumer."
-    },
-    "gui.inventory_preview_call": {
-      "rva": "0x5C4CA9",
-      "kind": "instruction",
-      "note": "Call site of the inventory item preview preparation."
-    },
-    "gui.scale": {
-      "rva": "0x426F5CC",
-      "kind": "global",
-      "note": "Float global scaling the HUD."
-    },
-    "input.action_registry": {
-      "rva": "0x1009408",
-      "kind": "global",
-      "note": "UAInput action registry pointer. Records are at registry+0x98 indexed by action id, with the count at registry+0xA4; the default record is at registry+0x110."
-    },
-    "input.action_registry_get": {
-      "rva": "0x534AE0",
-      "note": "Returns the action registry: reads the input.action_registry global. What the by-id getters call before indexing registry+0x98."
-    },
-    "input.axis_pair": {
-      "rva": "0x5F5E10",
-      "note": "Input interface slot 22: (mode, idA, idB, check_focus) -> (value(idA) - value(idB)) through a response curve and the sensitivity for mode (0 mouse, 1 raw, 2 mouse without the curve constant, 3 alternative), clamped. The aim consumer calls it with mode 0, so its result is an angular rate in radians per second."
-    },
-    "input.click_by_id": {
-      "rva": "0x5F6C00",
-      "note": "Input interface slot 18: click, state block flag bit 21, by action id."
-    },
-    "input.device_update": {
-      "rva": "0x351DE0",
-      "note": "Raw mouse device update; copies and zeroes the accumulated frame delta."
-    },
-    "input.double_click_by_id": {
-      "rva": "0x5F5350",
-      "note": "Input interface slot 15: double click, state block flag bit 6, by action id."
-    },
-    "input.double_click_by_record": {
-      "rva": "0x5F53C0",
-      "note": "Input interface slot 17: double click, state block flag bit 6, by record."
-    },
-    "input.has_game_focus": {
-      "rva": "0x5F6900",
-      "note": "HasGameFocus(id); false while the focus counter is zero."
-    },
-    "input.hold_begin_by_id": {
-      "rva": "0x5F5460",
-      "note": "Input interface slot 12: hold begin, state block flag bit 4, by action id."
-    },
-    "input.hold_begin_by_record": {
-      "rva": "0x5F54D0",
-      "note": "Input interface slot 14: hold begin, state block flag bit 4, by record."
-    },
-    "input.hold_by_id": {
-      "rva": "0x5F5960",
-      "note": "Input interface slot 9: hold, state block flag bit 3, by action id."
-    },
-    "input.hold_by_record": {
-      "rva": "0x5F59D0",
-      "note": "Input interface slot 11: hold, state block flag bit 3, by record."
-    },
-    "input.interface_for_player": {
-      "rva": "0x7031A0",
-      "note": "Resolves the input interface a consumer reads from. Returns Input+0x28 for the local player; a replay source or the remote player's interface otherwise."
-    },
-    "input.keyboard_poll": {
-      "rva": "0x34FDF0",
-      "note": "Polled keyboard module; maps 256 virtual key slots through a table at Input+0x85D0."
-    },
-    "input.local_value": {
-      "rva": "0x536AE0",
-      "note": "LocalValue of a state block: the sum of the two floats at block+0x0C and block+0x10."
-    },
-    "input.player_controller_aim": {
-      "rva": "0x4F7A30",
-      "note": "DayZPlayerInputController slot 7: aim. Calls the axis pair with mode 0 for (UAAimRight, UAAimLeft) and (UAAimDown, UAAimUp), clamps and multiplies by dt, which GetAimChange reports in radians."
-    },
-    "input.player_controller_update": {
-      "rva": "0x4F5D40",
-      "note": "DayZPlayerInputController slot 6: the per-frame on-foot update (self, player, dt). Builds movement from the UAMoveRight/Left/Forward/Back values, so this is the function that proves the engine consumes analogue action values. The vehicle (UACar*) consumer has not been found yet."
-    },
-    "input.press_by_id": {
-      "rva": "0x5F5A90",
-      "note": "Input interface slot 3: press, state block flag bit 1, by action id."
-    },
-    "input.press_by_record": {
-      "rva": "0x5F5B00",
-      "note": "Input interface slot 5: press, state block flag bit 1, by record."
-    },
-    "input.record_ctor": {
-      "rva": "0x53A430",
-      "note": "UAInput record constructor; sets the active state block and the record flags."
-    },
-    "input.register_raw_devices": {
-      "rva": "0x34FCE0",
-      "note": "One of the RegisterRawInputDevices call sites."
-    },
-    "input.release_by_id": {
-      "rva": "0x5F5BC0",
-      "note": "Input interface slot 6: release, state block flag bit 2, by action id."
-    },
-    "input.release_by_record": {
-      "rva": "0x5F5C30",
-      "note": "Input interface slot 8: release, state block flag bit 2, by record."
-    },
-    "input.resolve_action_name": {
-      "rva": "0x534540",
-      "note": "Resolves an action name to its record through the action registry. What input.value_by_name calls before the record variant."
-    },
-    "input.value_by_id": {
-      "rva": "0x5F5CF0",
-      "note": "Input interface slot 0: LocalValue as a float, by action id. Analogue: the on-foot consumer builds movement from these values, so an analogue value gives an analogue speed."
-    },
-    "input.value_by_name": {
-      "rva": "0x5F5DA0",
-      "note": "Input interface slot 1: LocalValue by action name; resolves the name through input.resolve_action_name and calls input.value_by_record."
-    },
-    "input.value_by_record": {
-      "rva": "0x5F5D50",
-      "note": "Input interface slot 2: LocalValue as a float, by record. Checks record+0x74 != -0xFFFF, then sums the two floats in the active state block."
-    },
-    "render.dynamic_blur": {
-      "rva": "0x22EF70",
-      "note": "Blur effect handler."
-    },
-    "render.dynamic_blur_parameter_index": {
-      "rva": "0xFED8F8",
-      "kind": "global",
-      "note": "Index of the blur amount parameter, zeroed per call by the predecessor project."
-    },
-    "render.execute_view": {
-      "rva": "0x4507A0",
-      "note": "Executes a view. Both call sites ignore the return value, so a view can be skipped for a frame."
-    },
-    "render.finalize_view": {
-      "rva": "0x4508B0",
-      "note": "Clears the prepared view pointer."
-    },
-    "render.frame": {
-      "rva": "0x8E77C0",
-      "note": "Per-frame work in world; builds the visibility and draw lists."
-    },
-    "render.prepare_view": {
-      "rva": "0x44F5A0",
-      "note": "View setup; stores the prepared view pointer into the render context."
-    },
-    "render.projection_dispatch": {
-      "rva": "0x952000",
-      "note": "Per-frame dispatch; refreshes the primary FrameBase and the cached view and projection matrices."
-    },
-    "render.world": {
-      "rva": "0x8E7650",
-      "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit."
-    },
-    "rpc.dispatch_to_script": {
-      "rva": "0x5BB620",
-      "note": "Calls script OnRPC(sender, target, rpc_type, ctx). Hook point for listening to incoming RPCs."
-    },
-    "rpc.onrpc_method_id": {
-      "rva": "0xF221A0",
-      "kind": "global",
-      "note": "Cached script method id for OnRPC, -1 until rpc.dispatch_to_script first resolves it."
-    },
-    "rpc.send": {
-      "rva": "0x5BCF70",
-      "note": "CGame.RPC(this, target, rpcType, params, guaranteed, recipient)."
-    },
-    "rpc.send_self": {
-      "rva": "0x5BCFA0",
-      "note": "CGame.RPCSelf: delivered in this process only, never on the wire."
-    },
-    "rpc.send_self_single": {
-      "rva": "0x5BCFD0",
-      "note": "CGame.RPCSelfSingleParam."
-    },
-    "rpc.send_single": {
-      "rva": "0x5BD000",
-      "note": "CGame.RPCSingleParam; same as rpc.send with one Param instead of an array."
-    },
-    "script.call_method": {
-      "rva": "0x317060",
-      "note": "Call a script method by id: (object, out, id, a, b, c, d). What the engine's own dispatchers use."
-    },
-    "script.cfgmods_read": {
-      "rva": "0x43F6F2",
-      "kind": "instruction",
-      "note": "First of four references to the CfgMods config class name in the mod setup function; a fifth is at 0x5977EB."
-    },
-    "script.cgame_registrator": {
-      "rva": "0x5B9D80",
-      "note": "Registers the CGame script class and binds every one of its natives as an ordinary member function pointer."
-    },
-    "script.load_script_retail_gate": {
-      "rva": "0x2D9A3B",
-      "kind": "instruction",
-      "note": "Loads the refusal message inside script.load_script_stub. The only reference to that string in the image."
-    },
-    "script.load_script_stub": {
-      "rva": "0x2D9A30",
-      "note": "Whole native body bound to ScriptModule.LoadScript on retail: log the refusal, return null. Registered as the static method at script.scriptmodule_registrator + 0xC4."
-    },
-    "script.method_id": {
-      "rva": "0x319210",
-      "note": "Resolve a method name on a script class to the id script.call_method takes."
-    },
-    "script.module_config_add": {
-      "rva": "0x4CA7E0",
-      "note": "Called once per CfgMods script module key with the key name in r9; the common path that turns a mod's config entry into a script module."
-    },
-    "script.module_config_read": {
-      "rva": "0x4CA5C0",
-      "note": "Reads the five CfgMods script module keys in order (engine, gameLib, game, world, mission at 0x4CA5FE, 0x4CA666, 0x4CA6C9, 0x4CA728, 0x4CA787) and calls script.module_config_add for each."
-    },
-    "script.native_register_method": {
-      "rva": "0x31B7F0",
-      "note": "Binds one instance method: (class, ctx, name, function, flags)."
-    },
-    "script.native_register_static": {
-      "rva": "0x31B790",
-      "note": "Binds one static method; same shape as script.native_register_method."
-    },
-    "script.script_module_instance": {
-      "rva": "0xFF1B20",
-      "kind": "global",
-      "note": "The engine ScriptModule the g_Script script global is bound to."
-    },
-    "script.scriptmodule_registrator": {
-      "rva": "0x2D85FB",
-      "kind": "instruction",
-      "note": "Registration of the ScriptModule script class and its methods: Call 0x31AAA0, CallFunction 0x31ACE0, CallFunctionParams 0x31AEF0, Release 0x2E7420, LoadScript 0x2D9A30."
-    },
-    "session.connect": {
-      "rva": "0x5AFFA0",
-      "note": "CGame.Connect(this, parent menu, RefString *address, int port, RefString *password)."
-    },
-    "session.connect_last": {
-      "rva": "0x5AFB20",
-      "note": "CGame.ConnectLastSession(this, parent menu, int selectedCharacter)."
-    },
-    "session.disconnect": {
-      "rva": "0x5B1D10",
-      "note": "CGame.DisconnectSession(this)."
-    },
-    "session.disconnect_force": {
-      "rva": "0x5B1D40",
-      "note": "CGame.DisconnectSessionForce(this)."
-    },
-    "session.exit_requested": {
-      "rva": "0x426F290",
-      "kind": "global",
-      "note": "Set to 1 by session.request_exit; the main loop stops at the next frame. The exit code is written to CGame+0xD8 just before."
-    },
-    "session.host_address": {
-      "rva": "0x5B3080",
-      "note": "CGame.GetHostAddress(this, out address, out port): which server this client is on."
-    },
-    "session.host_data": {
-      "rva": "0x5B3260",
-      "note": "CGame.GetHostData(this)."
-    },
-    "session.host_name": {
-      "rva": "0x5B3340",
-      "note": "CGame.GetHostName(this, out name)."
-    },
-    "session.is_client": {
-      "rva": "0x5B69F0",
-      "note": "CGame.IsClient(this). See session.is_multiplayer."
-    },
-    "session.is_multiplayer": {
-      "rva": "0x5B6A60",
-      "note": "CGame.IsMultiplayer(this). A cheap side-effect-free predicate, so also the way to test a candidate CGame pointer."
-    },
-    "session.request_exit": {
-      "rva": "0x5BCAC0",
-      "note": "CGame.RequestExit(this, int code): stores the code at this+0xD8 and sets the exit flag; the main loop stops at the next frame."
-    },
-    "session.request_restart": {
-      "rva": "0x5BCB10",
-      "note": "CGame.RequestRestart(this, int code)."
-    },
-    "string.holder_create": {
-      "rva": "0x5DC10",
-      "note": "enf::BasicStringHolder<char> from a C string: allocates length + 0x18 and writes refcount 0, then strlen + 1 as the length, then the characters with their terminator. An empty string returns null rather than an empty holder, which is why a null holder has to read as \"\"."
-    }
+ "version": "1.29.163709",
+ "_comment": [
+  "Addresses established by reverse engineering DayZ 1.29.163709 and documented in",
+  "dayz-plugins.github.io/research/. This seed is the input to `dayz-data generate`,",
+  "which fills in the byte checks, the candidate patterns and the build metadata."
+ ],
+ "symbols": {
+  "camera.active_state": {
+   "rva": "0x4B6BE0",
+   "note": "Active camera state getter; checks +0x88 != -1 then reads +0x118."
   },
-  "offsets": {
-    "camera.transform_position": {
-      "value": "0x74",
-      "note": "Gameplay camera position inside the camera manager."
-    },
-    "camera.transform_rotation": {
-      "value": "0x50",
-      "note": "Gameplay camera 3x3 rotation inside the camera manager, rows at +0x50, +0x5C and +0x68."
-    },
-    "event.handler_count": {
-      "value": "0x1F4",
-      "note": "Count for event.handlers."
-    },
-    "event.handlers": {
-      "value": "0x1E8",
-      "note": "Second listener array on the event manager; event.raise calls vtable slot 15 (+0x78) on each entry after the first array."
-    },
-    "event.listener_count": {
-      "value": "0x214",
-      "note": "Count for event.listeners."
-    },
-    "event.listeners": {
-      "value": "0x208",
-      "note": "First listener array on the event manager; event.raise calls vtable slot 1 (+0x08) on each entry with the event."
-    },
-    "event.vtable_name": {
-      "value": "0x10",
-      "note": "Event vtable slot 2: fn(event, char **out) writes the class name as a literal, e.g. \"ChatMessageEvent\", and returns out. 14 bytes and side-effect free in every event class inspected, which is how a hook names an event it has never seen."
-    },
-    "event.vtable_type": {
-      "value": "0x08",
-      "note": "Event vtable slot 1: fn(event, void **out) writes &<class>::RTTI_Type_Descriptor, the EventType the script dispatcher compares against."
-    },
-    "framebase.rotation": {
-      "value": "0x08",
-      "note": "3x3 basis. Honoured by the renderer, so head rotation written here reaches the image."
-    },
-    "framebase.translation": {
-      "value": "0x2C",
-      "note": "Translation. Ignored by the renderer in this build; eye separation never reaches rendering."
-    },
-    "input.focus_counter": {
-      "value": "0x183D4",
-      "note": "Game focus counter; HasGameFocus is false while it is zero."
-    },
-    "input.keyboard_table": {
-      "value": "0x85D0",
-      "note": "Virtual key to slot table used by the polled keyboard module."
-    },
-    "input.mouse_delta_x": {
-      "value": "0x89F8",
-      "note": "Accumulated raw mouse delta X for the frame, relative to the Input object."
-    },
-    "input.mouse_delta_y": {
-      "value": "0x89FC",
-      "note": "Accumulated raw mouse delta Y for the frame, relative to the Input object."
-    },
-    "render.context_camera": {
-      "value": "0x118",
-      "note": "Camera pointer read by the active camera state getter, which first checks +0x88 != -1."
-    },
-    "render.prepared_view": {
-      "value": "0xA10",
-      "note": "View prepared for the current execute, inside the render context. Stored by the view setup, cleared by finalize, and loaded at render.execute_view+0x43 and dereferenced at +0x65 with no null check."
-    },
-    "string.data": {
-      "value": "0x10",
-      "note": "Characters of an enf::BasicStringHolder<char>, NUL terminated."
-    },
-    "string.length": {
-      "value": "0x08",
-      "note": "Byte count of an enf::BasicStringHolder<char> INCLUDING the NUL terminator: the allocator stores strlen + 1 and copies that many bytes, so the characters are one short of it. Verified at runtime \u2014 reading the full count yields a trailing NUL."
-    },
-    "string.refcount": {
-      "value": "0x0",
-      "note": "Reference count of an enf::BasicStringHolder<char>; the engine touches it with LOCK INC / LOCK DEC and frees at one."
-    },
-    "uainput.active_state": {
-      "value": "0x28",
-      "note": "Pointer to the active state block of a UAInput record, +0x30 by default."
-    },
-    "uainput.block_flags": {
-      "value": "0x4",
-      "note": "Flags inside a state block: bit 1 press, bit 2 release, bit 3 hold, bit 4 hold begin, bit 6 double click, bit 21 click. Each getter reads this word and shifts by its own bit."
-    },
-    "uainput.block_value_a": {
-      "value": "0xC",
-      "note": "First of the two floats inside a state block whose sum is LocalValue. Likely a per-device or per-alternative contribution; which is which is not established."
-    },
-    "uainput.block_value_b": {
-      "value": "0x10",
-      "note": "Second of the two floats inside a state block whose sum is LocalValue. This is where an analogue value has to end up for the engine to read it."
-    },
-    "uainput.control_flags": {
-      "value": "0x70",
-      "note": "Control flags: 0x08 locked, 0x20 from the registry byte, 0x40 force enabled."
-    },
-    "uainput.record_default_check": {
-      "value": "0x74",
-      "note": "Compared against -0xFFFF (0xFFFF0001) by every by-record getter before it reads anything; the default record never reports."
-    },
-    "uainput.record_id": {
-      "value": "0x7C",
-      "note": "Action id of a record, the index into registry+0x98."
-    },
-    "uainput.state_block": {
-      "value": "0x30",
-      "note": "State block A, 0x20 bytes; +0x34 holds the press, release and hold flags."
-    }
+  "camera.fov_update": {
+   "rva": "0x4B7AD0",
+   "note": "Camera field of view update; hooked to override the gameplay value."
+  },
+  "camera.manager": {
+   "rva": "0x1007CE0",
+   "kind": "global",
+   "note": "Camera manager pointer, passed to the active camera state getter."
+  },
+  "camera.profile_fov": {
+   "rva": "0x1007E00",
+   "kind": "global",
+   "note": "Float global holding the loaded DayZProfile field of view."
+  },
+  "chat.local": {
+   "rva": "0x5AD300",
+   "note": "CGame.Chat(this, RefString *text, RefString *colourClass): puts a line in this client's chat only."
+  },
+  "chat.raise_message": {
+   "rva": "0x719B90",
+   "note": "Builds and raises ChatMessageEvent: (game, int channel, RefString *from, RefString *text, RefString *colourClass). Every chat line the client shows passes through here; not calling the original swallows it."
+  },
+  "chat.say": {
+   "rva": "0x5AD4B0",
+   "note": "CGame.ChatPlayer(this, RefString *text): says it as the player, on the current channel."
+  },
+  "chat.to_player": {
+   "rva": "0x5AD3D0",
+   "note": "CGame.ChatMP(this, Man *recipient, RefString *text, RefString *colourClass): server side, to one player."
+  },
+  "engine.singleton": {
+   "rva": "0x42626D0",
+   "kind": "global",
+   "note": "Root engine object pointer."
+  },
+  "event.chatmessage_name_of": {
+   "rva": "0x71B5A0",
+   "note": "ChatMessageEvent vtable slot 2: writes the literal \"ChatMessageEvent\" into the out-parameter. How a hook names an event without a table of ids."
+  },
+  "event.chatmessage_type_of": {
+   "rva": "0x71B4D0",
+   "note": "ChatMessageEvent vtable slot 1: writes &game::ChatMessageEvent::RTTI_Type_Descriptor into the out-parameter. 14 bytes, no side effects."
+  },
+  "event.chatmessage_vftable": {
+   "rva": "0xCE73F0",
+   "kind": "global",
+   "note": "game::ChatMessageEvent vftable. Slot 1 returns the EventType, slot 2 the class name as text; every event class inspected has the same six-slot shape."
+  },
+  "event.connectionclose_vftable": {
+   "rva": "0xCE72F0",
+   "kind": "global",
+   "note": "game::MPConnectionCloseEvent vftable; the kick event. See event.chatmessage_vftable for the slot meanings."
+  },
+  "event.dispatch_to_script": {
+   "rva": "0x5CACD0",
+   "note": "Calls script CGame.OnEvent(type, params). Reads the EventType from vtable slot 1 of the event; returns 1 when script handled it, which skips event.engine_default. Hook point for listening to and swallowing events."
+  },
+  "event.engine_default": {
+   "rva": "0x5CACB0",
+   "note": "The engine's own handling of an event script did not take."
+  },
+  "event.manager": {
+   "rva": "0x1D2BD0",
+   "note": "Returns the event manager both inspected event raisers hand their event to."
+  },
+  "event.manager_instance": {
+   "rva": "0xFEBBE0",
+   "kind": "global",
+   "note": "The event manager pointer itself: event.manager is a one-instruction getter that returns this global. It is the `this` every event.raise call takes, so a hook on event.raise sees every event raised in the process."
+  },
+  "event.onevent_method_id": {
+   "rva": "0xF226A0",
+   "kind": "global",
+   "note": "Cached script method id for CGame.OnEvent, -1 until event.dispatch_to_script first resolves it."
+  },
+  "event.raise": {
+   "rva": "0x1D6260",
+   "note": "Raise one event: (manager, &event). Sees every event, including those that never reach script."
+  },
+  "event.raise_connection_close": {
+   "rva": "0x719F70",
+   "note": "Builds and raises MPConnectionCloseEvent, the kick and disconnect event, through event.raise."
+  },
+  "event.register_type_ids": {
+   "rva": "0x5B77C0",
+   "note": "Assigns every XEventTypeID script global the address of that event class's RTTI type descriptor. EventType is a type pointer, not a number."
+  },
+  "event.script_marshaller": {
+   "rva": "0x5B8560",
+   "note": "Third referrer of the \"OnEvent\" string, 4936 bytes, unread. The likeliest home of the per-event-class conversion from a native event to script's Param; reading it is what unblocks reading an event's contents from a hook."
+  },
+  "gui.hud_layout": {
+   "rva": "0x8A2280",
+   "note": "GetHudContentRect; hooked to read the HUD content rectangle."
+  },
+  "gui.input_handler": {
+   "rva": "0x350B60",
+   "note": "Window message handler and WM_INPUT consumer."
+  },
+  "gui.inventory_preview_call": {
+   "rva": "0x5C4CA9",
+   "kind": "instruction",
+   "note": "Call site of the inventory item preview preparation."
+  },
+  "gui.scale": {
+   "rva": "0x426F5CC",
+   "kind": "global",
+   "note": "Float global scaling the HUD."
+  },
+  "input.action_registry": {
+   "rva": "0x1009408",
+   "kind": "global",
+   "note": "UAInput action registry pointer. Records are at registry+0x98 indexed by action id, with the count at registry+0xA4; the default record is at registry+0x110."
+  },
+  "input.action_registry_get": {
+   "rva": "0x534AE0",
+   "note": "Returns the action registry: reads the input.action_registry global. What the by-id getters call before indexing registry+0x98."
+  },
+  "input.axis_pair": {
+   "rva": "0x5F5E10",
+   "note": "Input interface slot 22: (mode, idA, idB, check_focus) -> (value(idA) - value(idB)) through a response curve and the sensitivity for mode (0 mouse, 1 raw, 2 mouse without the curve constant, 3 alternative), clamped. The aim consumer calls it with mode 0, so its result is an angular rate in radians per second."
+  },
+  "input.click_by_id": {
+   "rva": "0x5F6C00",
+   "note": "Input interface slot 18: click, state block flag bit 21, by action id."
+  },
+  "input.device_update": {
+   "rva": "0x351DE0",
+   "note": "Raw mouse device update; copies and zeroes the accumulated frame delta."
+  },
+  "input.double_click_by_id": {
+   "rva": "0x5F5350",
+   "note": "Input interface slot 15: double click, state block flag bit 6, by action id."
+  },
+  "input.double_click_by_record": {
+   "rva": "0x5F53C0",
+   "note": "Input interface slot 17: double click, state block flag bit 6, by record."
+  },
+  "input.has_game_focus": {
+   "rva": "0x5F6900",
+   "note": "HasGameFocus(id); false while the focus counter is zero."
+  },
+  "input.hold_begin_by_id": {
+   "rva": "0x5F5460",
+   "note": "Input interface slot 12: hold begin, state block flag bit 4, by action id."
+  },
+  "input.hold_begin_by_record": {
+   "rva": "0x5F54D0",
+   "note": "Input interface slot 14: hold begin, state block flag bit 4, by record."
+  },
+  "input.hold_by_id": {
+   "rva": "0x5F5960",
+   "note": "Input interface slot 9: hold, state block flag bit 3, by action id."
+  },
+  "input.hold_by_record": {
+   "rva": "0x5F59D0",
+   "note": "Input interface slot 11: hold, state block flag bit 3, by record."
+  },
+  "input.interface_for_player": {
+   "rva": "0x7031A0",
+   "note": "Resolves the input interface a consumer reads from. Returns Input+0x28 for the local player; a replay source or the remote player's interface otherwise."
+  },
+  "input.keyboard_poll": {
+   "rva": "0x34FDF0",
+   "note": "Polled keyboard module; maps 256 virtual key slots through a table at Input+0x85D0."
+  },
+  "input.local_value": {
+   "rva": "0x536AE0",
+   "note": "LocalValue of a state block: the sum of the two floats at block+0x0C and block+0x10."
+  },
+  "input.player_controller_aim": {
+   "rva": "0x4F7A30",
+   "note": "DayZPlayerInputController slot 7: aim. Calls the axis pair with mode 0 for (UAAimRight, UAAimLeft) and (UAAimDown, UAAimUp), clamps and multiplies by dt, which GetAimChange reports in radians."
+  },
+  "input.player_controller_update": {
+   "rva": "0x4F5D40",
+   "note": "DayZPlayerInputController slot 6: the per-frame on-foot update (self, player, dt). Builds movement from the UAMoveRight/Left/Forward/Back values, so this is the function that proves the engine consumes analogue action values. The vehicle (UACar*) consumer has not been found yet."
+  },
+  "input.press_by_id": {
+   "rva": "0x5F5A90",
+   "note": "Input interface slot 3: press, state block flag bit 1, by action id."
+  },
+  "input.press_by_record": {
+   "rva": "0x5F5B00",
+   "note": "Input interface slot 5: press, state block flag bit 1, by record."
+  },
+  "input.record_ctor": {
+   "rva": "0x53A430",
+   "note": "UAInput record constructor; sets the active state block and the record flags."
+  },
+  "input.register_raw_devices": {
+   "rva": "0x34FCE0",
+   "note": "One of the RegisterRawInputDevices call sites."
+  },
+  "input.release_by_id": {
+   "rva": "0x5F5BC0",
+   "note": "Input interface slot 6: release, state block flag bit 2, by action id."
+  },
+  "input.release_by_record": {
+   "rva": "0x5F5C30",
+   "note": "Input interface slot 8: release, state block flag bit 2, by record."
+  },
+  "input.resolve_action_name": {
+   "rva": "0x534540",
+   "note": "Resolves an action name to its record through the action registry. What input.value_by_name calls before the record variant."
+  },
+  "input.value_by_id": {
+   "rva": "0x5F5CF0",
+   "note": "Input interface slot 0: LocalValue as a float, by action id. Analogue: the on-foot consumer builds movement from these values, so an analogue value gives an analogue speed."
+  },
+  "input.value_by_name": {
+   "rva": "0x5F5DA0",
+   "note": "Input interface slot 1: LocalValue by action name; resolves the name through input.resolve_action_name and calls input.value_by_record."
+  },
+  "input.value_by_record": {
+   "rva": "0x5F5D50",
+   "note": "Input interface slot 2: LocalValue as a float, by record. Checks record+0x74 != -0xFFFF, then sums the two floats in the active state block."
+  },
+  "render.dynamic_blur": {
+   "rva": "0x22EF70",
+   "note": "Blur effect handler."
+  },
+  "render.dynamic_blur_parameter_index": {
+   "rva": "0xFED8F8",
+   "kind": "global",
+   "note": "Index of the blur amount parameter, zeroed per call by the predecessor project."
+  },
+  "render.execute_view": {
+   "rva": "0x4507A0",
+   "note": "Executes a view. Both call sites ignore the return value, so a view can be skipped for a frame."
+  },
+  "render.finalize_view": {
+   "rva": "0x4508B0",
+   "note": "Clears the prepared view pointer."
+  },
+  "render.frame": {
+   "rva": "0x8E77C0",
+   "note": "Per-frame work in world; builds the visibility and draw lists."
+  },
+  "render.prepare_view": {
+   "rva": "0x44F5A0",
+   "note": "View setup; stores the prepared view pointer into the render context."
+  },
+  "render.projection_dispatch": {
+   "rva": "0x952000",
+   "note": "Per-frame dispatch; refreshes the primary FrameBase and the cached view and projection matrices."
+  },
+  "render.world": {
+   "rva": "0x8E7650",
+   "note": "Executes the prepared draw lists. Scene preparation, not this, is the per-eye unit."
+  },
+  "rpc.dispatch_to_script": {
+   "rva": "0x5BB620",
+   "note": "Calls script OnRPC(sender, target, rpc_type, ctx). Hook point for listening to incoming RPCs."
+  },
+  "rpc.onrpc_method_id": {
+   "rva": "0xF221A0",
+   "kind": "global",
+   "note": "Cached script method id for OnRPC, -1 until rpc.dispatch_to_script first resolves it."
+  },
+  "rpc.send": {
+   "rva": "0x5BCF70",
+   "note": "CGame.RPC(this, target, rpcType, params, guaranteed, recipient)."
+  },
+  "rpc.send_self": {
+   "rva": "0x5BCFA0",
+   "note": "CGame.RPCSelf: delivered in this process only, never on the wire."
+  },
+  "rpc.send_self_single": {
+   "rva": "0x5BCFD0",
+   "note": "CGame.RPCSelfSingleParam."
+  },
+  "rpc.send_single": {
+   "rva": "0x5BD000",
+   "note": "CGame.RPCSingleParam; same as rpc.send with one Param instead of an array."
+  },
+  "script.call_method": {
+   "rva": "0x317060",
+   "note": "Call a script method by id: (object, out, id, a, b, c, d). What the engine's own dispatchers use."
+  },
+  "script.cfgmods_read": {
+   "rva": "0x43F6F2",
+   "kind": "instruction",
+   "note": "First of four references to the CfgMods config class name in the mod setup function; a fifth is at 0x5977EB."
+  },
+  "script.cgame_registrator": {
+   "rva": "0x5B9D80",
+   "note": "Registers the CGame script class and binds every one of its natives as an ordinary member function pointer."
+  },
+  "script.load_script_retail_gate": {
+   "rva": "0x2D9A3B",
+   "kind": "instruction",
+   "note": "Loads the refusal message inside script.load_script_stub. The only reference to that string in the image."
+  },
+  "script.load_script_stub": {
+   "rva": "0x2D9A30",
+   "note": "Whole native body bound to ScriptModule.LoadScript on retail: log the refusal, return null. Registered as the static method at script.scriptmodule_registrator + 0xC4."
+  },
+  "script.method_id": {
+   "rva": "0x319210",
+   "note": "Resolve a method name on a script class to the id script.call_method takes."
+  },
+  "script.module_config_add": {
+   "rva": "0x4CA7E0",
+   "note": "Called once per CfgMods script module key with the key name in r9; the common path that turns a mod's config entry into a script module."
+  },
+  "script.module_config_read": {
+   "rva": "0x4CA5C0",
+   "note": "Reads the five CfgMods script module keys in order (engine, gameLib, game, world, mission at 0x4CA5FE, 0x4CA666, 0x4CA6C9, 0x4CA728, 0x4CA787) and calls script.module_config_add for each."
+  },
+  "script.native_register_method": {
+   "rva": "0x31B7F0",
+   "note": "Binds one instance method: (class, ctx, name, function, flags)."
+  },
+  "script.native_register_static": {
+   "rva": "0x31B790",
+   "note": "Binds one static method; same shape as script.native_register_method."
+  },
+  "script.script_module_instance": {
+   "rva": "0xFF1B20",
+   "kind": "global",
+   "note": "The engine ScriptModule the g_Script script global is bound to."
+  },
+  "script.scriptmodule_registrator": {
+   "rva": "0x2D85FB",
+   "kind": "instruction",
+   "note": "Registration of the ScriptModule script class and its methods: Call 0x31AAA0, CallFunction 0x31ACE0, CallFunctionParams 0x31AEF0, Release 0x2E7420, LoadScript 0x2D9A30."
+  },
+  "session.connect": {
+   "rva": "0x5AFFA0",
+   "note": "CGame.Connect(this, parent menu, RefString *address, int port, RefString *password)."
+  },
+  "session.connect_last": {
+   "rva": "0x5AFB20",
+   "note": "CGame.ConnectLastSession(this, parent menu, int selectedCharacter)."
+  },
+  "session.disconnect": {
+   "rva": "0x5B1D10",
+   "note": "CGame.DisconnectSession(this)."
+  },
+  "session.disconnect_force": {
+   "rva": "0x5B1D40",
+   "note": "CGame.DisconnectSessionForce(this)."
+  },
+  "session.exit_requested": {
+   "rva": "0x426F290",
+   "kind": "global",
+   "note": "Set to 1 by session.request_exit; the main loop stops at the next frame. The exit code is written to CGame+0xD8 just before."
+  },
+  "session.host_address": {
+   "rva": "0x5B3080",
+   "note": "CGame.GetHostAddress(this, out address, out port): which server this client is on."
+  },
+  "session.host_data": {
+   "rva": "0x5B3260",
+   "note": "CGame.GetHostData(this)."
+  },
+  "session.host_name": {
+   "rva": "0x5B3340",
+   "note": "CGame.GetHostName(this, out name)."
+  },
+  "session.is_client": {
+   "rva": "0x5B69F0",
+   "note": "CGame.IsClient(this). See session.is_multiplayer."
+  },
+  "session.is_multiplayer": {
+   "rva": "0x5B6A60",
+   "note": "CGame.IsMultiplayer(this). A cheap side-effect-free predicate, so also the way to test a candidate CGame pointer."
+  },
+  "session.request_exit": {
+   "rva": "0x5BCAC0",
+   "note": "CGame.RequestExit(this, int code): stores the code at this+0xD8 and sets the exit flag; the main loop stops at the next frame."
+  },
+  "session.request_restart": {
+   "rva": "0x5BCB10",
+   "note": "CGame.RequestRestart(this, int code)."
+  },
+  "string.holder_create": {
+   "rva": "0x5DC10",
+   "note": "enf::BasicStringHolder<char> from a C string: allocates length + 0x18 and writes refcount 0, then strlen + 1 as the length, then the characters with their terminator. An empty string returns null rather than an empty holder, which is why a null holder has to read as \"\"."
   }
+ },
+ "offsets": {
+  "camera.transform_position": {
+   "value": "0x74",
+   "note": "Gameplay camera position inside the camera manager."
+  },
+  "camera.transform_rotation": {
+   "value": "0x50",
+   "note": "Gameplay camera 3x3 rotation inside the camera manager, rows at +0x50, +0x5C and +0x68."
+  },
+  "event.handler_count": {
+   "value": "0x1F4",
+   "note": "Count for event.handlers."
+  },
+  "event.handlers": {
+   "value": "0x1E8",
+   "note": "Second listener array on the event manager; event.raise calls vtable slot 15 (+0x78) on each entry after the first array."
+  },
+  "event.listener_count": {
+   "value": "0x214",
+   "note": "Count for event.listeners."
+  },
+  "event.listeners": {
+   "value": "0x208",
+   "note": "First listener array on the event manager; event.raise calls vtable slot 1 (+0x08) on each entry with the event."
+  },
+  "event.vtable_name": {
+   "value": "0x10",
+   "note": "Event vtable slot 2: fn(event, char **out) writes the class name as a literal, e.g. \"ChatMessageEvent\", and returns out. 14 bytes and side-effect free in every event class inspected, which is how a hook names an event it has never seen."
+  },
+  "event.vtable_type": {
+   "value": "0x08",
+   "note": "Event vtable slot 1: fn(event, void **out) writes &<class>::RTTI_Type_Descriptor, the EventType the script dispatcher compares against."
+  },
+  "framebase.rotation": {
+   "value": "0x08",
+   "note": "3x3 basis. Honoured by the renderer, so head rotation written here reaches the image."
+  },
+  "framebase.translation": {
+   "value": "0x2C",
+   "note": "Translation. Ignored by the renderer in this build; eye separation never reaches rendering."
+  },
+  "input.focus_counter": {
+   "value": "0x183D4",
+   "note": "Game focus counter; HasGameFocus is false while it is zero."
+  },
+  "input.keyboard_table": {
+   "value": "0x85D0",
+   "note": "Virtual key to slot table used by the polled keyboard module."
+  },
+  "input.mouse_delta_x": {
+   "value": "0x89F8",
+   "note": "Accumulated raw mouse delta X for the frame, relative to the Input object."
+  },
+  "input.mouse_delta_y": {
+   "value": "0x89FC",
+   "note": "Accumulated raw mouse delta Y for the frame, relative to the Input object."
+  },
+  "render.context_camera": {
+   "value": "0x118",
+   "note": "Camera pointer read by the active camera state getter, which first checks +0x88 != -1."
+  },
+  "render.prepared_view": {
+   "value": "0xA10",
+   "note": "View prepared for the current execute, inside the render context. Stored by the view setup, cleared by finalize, and loaded at render.execute_view+0x43 and dereferenced at +0x65 with no null check."
+  },
+  "string.data": {
+   "value": "0x10",
+   "note": "Characters of an enf::BasicStringHolder<char>, NUL terminated."
+  },
+  "string.length": {
+   "value": "0x08",
+   "note": "Byte count of an enf::BasicStringHolder<char> INCLUDING the NUL terminator: the allocator stores strlen + 1 and copies that many bytes, so the characters are one short of it. Verified at runtime \u2014 reading the full count yields a trailing NUL."
+  },
+  "string.refcount": {
+   "value": "0x0",
+   "note": "Reference count of an enf::BasicStringHolder<char>; the engine touches it with LOCK INC / LOCK DEC and frees at one."
+  },
+  "uainput.active_state": {
+   "value": "0x28",
+   "note": "Pointer to the active state block of a UAInput record, +0x30 by default."
+  },
+  "uainput.block_flags": {
+   "value": "0x4",
+   "note": "Flags inside a state block: bit 1 press, bit 2 release, bit 3 hold, bit 4 hold begin, bit 6 double click, bit 21 click. Each getter reads this word and shifts by its own bit."
+  },
+  "uainput.block_value_a": {
+   "value": "0xC",
+   "note": "First of the two floats inside a state block whose sum is LocalValue. Likely a per-device or per-alternative contribution; which is which is not established."
+  },
+  "uainput.block_value_b": {
+   "value": "0x10",
+   "note": "Second of the two floats inside a state block whose sum is LocalValue. This is where an analogue value has to end up for the engine to read it."
+  },
+  "uainput.control_flags": {
+   "value": "0x70",
+   "note": "Control flags: 0x08 locked, 0x20 from the registry byte, 0x40 force enabled."
+  },
+  "uainput.record_default_check": {
+   "value": "0x74",
+   "note": "Compared against -0xFFFF (0xFFFF0001) by every by-record getter before it reads anything; the default record never reports."
+  },
+  "uainput.record_id": {
+   "value": "0x7C",
+   "note": "Action id of a record, the index into registry+0x98."
+  },
+  "uainput.state_block": {
+   "value": "0x30",
+   "note": "State block A, 0x20 bytes; +0x34 holds the press, release and hold flags."
+  }
+ },
+ "events": {
+  "AISlotEvent": {
+   "vtable": "0xC65BB8"
+  },
+  "AfterRenderEvent": {
+   "vtable": "0xC254E8"
+  },
+  "AfterResetEvent": {
+   "vtable": "0xC25538"
+  },
+  "AfterScriptBreakEvent": {
+   "vtable": "0xC4BF78"
+  },
+  "BeforeResetEvent": {
+   "vtable": "0xC25498"
+  },
+  "CharEvent": {
+   "vtable": "0xC50478"
+  },
+  "ChatMessageEvent": {
+   "vtable": "0xCE73F0",
+   "fields": [
+    {
+     "name": "channel",
+     "offset": "0x38",
+     "kind": "int"
+    },
+    {
+     "name": "from",
+     "offset": "0x08",
+     "kind": "string"
+    },
+    {
+     "name": "text",
+     "offset": "0x10",
+     "kind": "string"
+    },
+    {
+     "name": "color_config_class",
+     "offset": "0x18",
+     "kind": "string"
+    }
+   ],
+   "note": "A chat line about to be drawn. Raised for every channel, including system lines."
+  },
+  "ClientConnectedEvent": {
+   "vtable": "0xCD6500",
+   "fields": [
+    {
+     "name": "name",
+     "offset": "0x08",
+     "kind": "string"
+    },
+    {
+     "name": "uid",
+     "offset": "0x10",
+     "kind": "string"
+    }
+   ],
+   "note": "Server side: a client finished connecting."
+  },
+  "ClientDisconnectedEvent": {
+   "vtable": "0xCED3D0",
+   "fields": [
+    {
+     "name": "playeridentity",
+     "offset": "0x10",
+     "kind": "object",
+     "script_type": "PlayerIdentity"
+    },
+    {
+     "name": "man",
+     "offset": "0x08",
+     "kind": "object",
+     "script_type": "Man"
+    },
+    {
+     "name": "logouttime",
+     "offset": "0x18",
+     "kind": "int"
+    },
+    {
+     "name": "authfailed",
+     "offset": "0x1C",
+     "kind": "bool"
+    }
+   ],
+   "note": "Server side: a client left."
+  },
+  "ClientNewEvent": {
+   "vtable": "0xCED338",
+   "fields": [
+    {
+     "name": "identity",
+     "offset": "0x08",
+     "kind": "object",
+     "script_type": "PlayerIdentity"
+    },
+    {
+     "name": "position",
+     "offset": "0x10",
+     "kind": "vector"
+    },
+    {
+     "name": "serializer",
+     "offset": "0x20",
+     "kind": "object",
+     "script_type": "Serializer"
+    }
+   ],
+   "note": "Server side: a client with no character yet, carrying its spawn position."
+  },
+  "ClientNewReadyEvent": {
+   "vtable": "0xCD8E28",
+   "fields": [
+    {
+     "name": "playeridentity",
+     "offset": "0x10",
+     "kind": "object",
+     "script_type": "PlayerIdentity"
+    },
+    {
+     "name": "man",
+     "offset": "0x08",
+     "kind": "object",
+     "script_type": "Man"
+    }
+   ],
+   "note": "Server side: a new client's character is ready."
+  },
+  "ClientPrepareEvent": {
+   "vtable": "0xCD8DD8",
+   "note": "Server side: a client being prepared. Its bool and vector are read through pointers stored in the event, which this schema does not express, so its fields are left out rather than recorded as addresses."
+  },
+  "ClientReadyEvent": {
+   "vtable": "0xCED380",
+   "fields": [
+    {
+     "name": "playeridentity",
+     "offset": "0x10",
+     "kind": "object",
+     "script_type": "PlayerIdentity"
+    },
+    {
+     "name": "man",
+     "offset": "0x08",
+     "kind": "object",
+     "script_type": "Man"
+    }
+   ],
+   "note": "Server side: a returning client's character is ready."
+  },
+  "ClientReconnectEvent": {
+   "vtable": "0xCD8E78",
+   "fields": [
+    {
+     "name": "playeridentity",
+     "offset": "0x10",
+     "kind": "object",
+     "script_type": "PlayerIdentity"
+    },
+    {
+     "name": "man",
+     "offset": "0x08",
+     "kind": "object",
+     "script_type": "Man"
+    }
+   ],
+   "note": "Server side: a client reconnected to an existing character."
+  },
+  "ClientRemovedEvent": {
+   "vtable": "0xCE5868"
+  },
+  "ConnectingAbortEvent": {
+   "vtable": "0xCB2BB0"
+  },
+  "ConnectingStartEvent": {
+   "vtable": "0xCB2B60"
+  },
+  "ConnectivityStatsUpdatedEvent": {
+   "vtable": "0xCE7560",
+   "fields": [
+    {
+     "name": "playeridentity",
+     "offset": "0x08",
+     "kind": "object",
+     "script_type": "PlayerIdentity"
+    }
+   ],
+   "note": "Connectivity figures, pushed to the client periodically."
+  },
+  "ConsoleEvent": {
+   "vtable": "0xC5B4B0"
+  },
+  "CrashLogEvent": {
+   "vtable": "0xC25580"
+  },
+  "DLCOwnerShipFailedEvent": {
+   "vtable": "0xCB2B10"
+  },
+  "DialogQueuedEvent": {
+   "vtable": "0xCB6BC0"
+  },
+  "EntityEvent": {
+   "vtable": "0xC139D8"
+  },
+  "GamepadEvent": {
+   "vtable": "0xC50508"
+  },
+  "JoystickEvent": {
+   "vtable": "0xC504C0"
+  },
+  "KeyPressEvent": {
+   "vtable": "0xC505E0"
+  },
+  "KeyReleaseEvent": {
+   "vtable": "0xC50628"
+  },
+  "LastInputDeviceChangeEvent": {
+   "vtable": "0xC507F0"
+  },
+  "LeaveGameplaySessionEvent": {
+   "vtable": "0xCF1890"
+  },
+  "LoadWorldProgressEvent": {
+   "vtable": "0xC12828"
+  },
+  "LoginStatusEvent": {
+   "vtable": "0xCE7610"
+  },
+  "LoginTimeEvent": {
+   "vtable": "0xCE7440",
+   "fields": [
+    {
+     "name": "logintime",
+     "offset": "0x08",
+     "kind": "int"
+    }
+   ],
+   "note": "Seconds the login queue will still take."
+  },
+  "LogoutCancelEvent": {
+   "vtable": "0xCD8EC8",
+   "fields": [
+    {
+     "name": "player",
+     "offset": "0x08",
+     "kind": "object",
+     "script_type": "Man"
+    }
+   ],
+   "note": "The logout timer was cancelled."
+  },
+  "LogoutEvent": {
+   "vtable": "0xCE7488",
+   "fields": [
+    {
+     "name": "logouttime",
+     "offset": "0x08",
+     "kind": "int"
+    }
+   ],
+   "note": "Seconds the logout timer will still take."
+  },
+  "MPConnectionCloseEvent": {
+   "vtable": "0xCE72F0",
+   "fields": [
+    {
+     "name": "eclientkicked",
+     "offset": "0x08",
+     "kind": "int"
+    },
+    {
+     "name": "additionalinfo",
+     "offset": "0x10",
+     "kind": "string"
+    }
+   ],
+   "note": "The connection closed, with the reason the engine gave for it."
+  },
+  "MPConnectionLostEvent": {
+   "vtable": "0xCE72A0",
+   "fields": [
+    {
+     "name": "duration",
+     "offset": "0x08",
+     "kind": "int"
+    }
+   ],
+   "note": "The connection dropped; the value is how long reconnecting has left."
+  },
+  "MPSessionEndEvent": {
+   "vtable": "0xCD9320"
+  },
+  "MPSessionFailEvent": {
+   "vtable": "0xCE7250"
+  },
+  "MPSessionPlayerReadyEvent": {
+   "vtable": "0xCB2AB8"
+  },
+  "MPSessionStartEvent": {
+   "vtable": "0xCD92D0"
+  },
+  "MouseButtonPressEvent": {
+   "vtable": "0xC50750"
+  },
+  "MouseButtonReleaseEvent": {
+   "vtable": "0xC507A0"
+  },
+  "MouseMoveEvent": {
+   "vtable": "0xC50670"
+  },
+  "MousePositionEvent": {
+   "vtable": "0xC506B8"
+  },
+  "MouseWheelEvent": {
+   "vtable": "0xC50708"
+  },
+  "NetworkInputBufferEvent": {
+   "vtable": "0xCD62E8"
+  },
+  "NetworkManagerClientEvent": {
+   "vtable": "0xCE7340"
+  },
+  "NetworkManagerServerEvent": {
+   "vtable": "0xCE7398"
+  },
+  "OnFileDuplicateFoundEvent": {
+   "vtable": "0xC3ACE0"
+  },
+  "PlayerDeathEvent": {
+   "vtable": "0xC8A5D0"
+  },
+  "PreloadEvent": {
+   "vtable": "0xCE7518"
+  },
+  "ProgressEvent": {
+   "vtable": "0xCB7768",
+   "fields": [
+    {
+     "name": "state",
+     "offset": "0x08",
+     "kind": "int"
+    },
+    {
+     "name": "progress",
+     "offset": "0x0C",
+     "kind": "float"
+    },
+    {
+     "name": "title",
+     "offset": "0x10",
+     "kind": "string"
+    }
+   ],
+   "note": "Loading progress, as a stage and a fraction."
+  },
+  "RawKeyEvent": {
+   "vtable": "0xC50550"
+  },
+  "RawMouseEvent": {
+   "vtable": "0xC50598"
+  },
+  "ReloadShadersEvent": {
+   "vtable": "0xC25778"
+  },
+  "RespawnEvent": {
+   "vtable": "0xCE74D0",
+   "fields": [
+    {
+     "name": "respawntime",
+     "offset": "0x08",
+     "kind": "int"
+    }
+   ],
+   "note": "Seconds until respawn is allowed."
+  },
+  "ScriptLogEvent": {
+   "vtable": "0xC255C8",
+   "fields": [
+    {
+     "name": "text",
+     "offset": "0x08",
+     "kind": "string"
+    }
+   ],
+   "note": "A line the scripts logged."
+  },
+  "SelectedUserChangedEvent": {
+   "vtable": "0xCF2238"
+  },
+  "ServerFpsStatsUpdatedEvent": {
+   "vtable": "0xCE75B8",
+   "fields": [
+    {
+     "name": "average_server_fps",
+     "offset": "0x08",
+     "kind": "float"
+    },
+    {
+     "name": "highest_frame_time",
+     "offset": "0x0C",
+     "kind": "float"
+    },
+    {
+     "name": "skipped_steps_server",
+     "offset": "0x10",
+     "kind": "int"
+    },
+    {
+     "name": "skipped_steps_client",
+     "offset": "0x14",
+     "kind": "int"
+    }
+   ],
+   "note": "Server performance figures, pushed to the client periodically."
+  },
+  "SessionPlayerListChangedEvent": {
+   "vtable": "0xCF1838"
+  },
+  "SetFreeCameraEvent": {
+   "vtable": "0xC83308"
+  },
+  "SetPausedEvent": {
+   "vtable": "0xC25450"
+  },
+  "ShutdownEvent": {
+   "vtable": "0xD56EA8"
+  },
+  "StartedEvent": {
+   "vtable": "0xC69B28"
+  },
+  "StartupEvent": {
+   "vtable": "0xC69C30"
+  },
+  "VONStateEvent": {
+   "vtable": "0xD38EB0"
+  },
+  "VONUserStartedTransmittingAudioEvent": {
+   "vtable": "0xD38EF8"
+  },
+  "VONUserStoppedTransmittingAudioEvent": {
+   "vtable": "0xD38F58"
+  },
+  "VideoWidgetLoadEvent": {
+   "vtable": "0xC605A8"
+  },
+  "VideoWidgetPauseEvent": {
+   "vtable": "0xC60698"
+  },
+  "VideoWidgetPlayEvent": {
+   "vtable": "0xC60648"
+  },
+  "VideoWidgetSeekEvent": {
+   "vtable": "0xC60738"
+  },
+  "VideoWidgetStopEvent": {
+   "vtable": "0xC606E8"
+  },
+  "VideoWidgetUnloadEvent": {
+   "vtable": "0xC605F8"
+  },
+  "VonSystemCreatedEvent": {
+   "vtable": "0xCEFC20"
+  },
+  "WindowsResizeEvent": {
+   "vtable": "0xC17828"
+  },
+  "WorldCleaupEvent": {
+   "vtable": "0xD38E60"
+  }
+ }
 }

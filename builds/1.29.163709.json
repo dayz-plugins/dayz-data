@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "build": {
     "version": "1.29.163709",
     "executable": "DayZ_x64.exe",
@@ -7,7 +7,7 @@
     "file_size": 17851448,
     "pe_timestamp": "0x6A72FC58",
     "image_size": "0x4406000",
-    "verified": "unverified",
+    "verified": "2026-10-04",
     "provenance": "analysis"
   },
   "symbols": {
@@ -659,6 +659,478 @@
     "uainput.state_block": {
       "value": "0x30",
       "note": "State block A, 0x20 bytes; +0x34 holds the press, release and hold flags."
+    }
+  },
+  "events": {
+    "AISlotEvent": {
+      "vtable": "0xC65BB8"
+    },
+    "AfterRenderEvent": {
+      "vtable": "0xC254E8"
+    },
+    "AfterResetEvent": {
+      "vtable": "0xC25538"
+    },
+    "AfterScriptBreakEvent": {
+      "vtable": "0xC4BF78"
+    },
+    "BeforeResetEvent": {
+      "vtable": "0xC25498"
+    },
+    "CharEvent": {
+      "vtable": "0xC50478"
+    },
+    "ChatMessageEvent": {
+      "vtable": "0xCE73F0",
+      "fields": [
+        {
+          "name": "channel",
+          "offset": "0x38",
+          "kind": "int"
+        },
+        {
+          "name": "from",
+          "offset": "0x8",
+          "kind": "string"
+        },
+        {
+          "name": "text",
+          "offset": "0x10",
+          "kind": "string"
+        },
+        {
+          "name": "color_config_class",
+          "offset": "0x18",
+          "kind": "string"
+        }
+      ],
+      "note": "A chat line about to be drawn. Raised for every channel, including system lines."
+    },
+    "ClientConnectedEvent": {
+      "vtable": "0xCD6500",
+      "fields": [
+        {
+          "name": "name",
+          "offset": "0x8",
+          "kind": "string"
+        },
+        {
+          "name": "uid",
+          "offset": "0x10",
+          "kind": "string"
+        }
+      ],
+      "note": "Server side: a client finished connecting."
+    },
+    "ClientDisconnectedEvent": {
+      "vtable": "0xCED3D0",
+      "fields": [
+        {
+          "name": "playeridentity",
+          "offset": "0x10",
+          "kind": "object",
+          "script_type": "PlayerIdentity"
+        },
+        {
+          "name": "man",
+          "offset": "0x8",
+          "kind": "object",
+          "script_type": "Man"
+        },
+        {
+          "name": "logouttime",
+          "offset": "0x18",
+          "kind": "int"
+        },
+        {
+          "name": "authfailed",
+          "offset": "0x1C",
+          "kind": "bool"
+        }
+      ],
+      "note": "Server side: a client left."
+    },
+    "ClientNewEvent": {
+      "vtable": "0xCED338",
+      "fields": [
+        {
+          "name": "identity",
+          "offset": "0x8",
+          "kind": "object",
+          "script_type": "PlayerIdentity"
+        },
+        {
+          "name": "position",
+          "offset": "0x10",
+          "kind": "vector"
+        },
+        {
+          "name": "serializer",
+          "offset": "0x20",
+          "kind": "object",
+          "script_type": "Serializer"
+        }
+      ],
+      "note": "Server side: a client with no character yet, carrying its spawn position."
+    },
+    "ClientNewReadyEvent": {
+      "vtable": "0xCD8E28",
+      "fields": [
+        {
+          "name": "playeridentity",
+          "offset": "0x10",
+          "kind": "object",
+          "script_type": "PlayerIdentity"
+        },
+        {
+          "name": "man",
+          "offset": "0x8",
+          "kind": "object",
+          "script_type": "Man"
+        }
+      ],
+      "note": "Server side: a new client's character is ready."
+    },
+    "ClientPrepareEvent": {
+      "vtable": "0xCD8DD8",
+      "note": "Server side: a client being prepared. Its bool and vector are read through pointers stored in the event, which this schema does not express, so its fields are left out rather than recorded as addresses."
+    },
+    "ClientReadyEvent": {
+      "vtable": "0xCED380",
+      "fields": [
+        {
+          "name": "playeridentity",
+          "offset": "0x10",
+          "kind": "object",
+          "script_type": "PlayerIdentity"
+        },
+        {
+          "name": "man",
+          "offset": "0x8",
+          "kind": "object",
+          "script_type": "Man"
+        }
+      ],
+      "note": "Server side: a returning client's character is ready."
+    },
+    "ClientReconnectEvent": {
+      "vtable": "0xCD8E78",
+      "fields": [
+        {
+          "name": "playeridentity",
+          "offset": "0x10",
+          "kind": "object",
+          "script_type": "PlayerIdentity"
+        },
+        {
+          "name": "man",
+          "offset": "0x8",
+          "kind": "object",
+          "script_type": "Man"
+        }
+      ],
+      "note": "Server side: a client reconnected to an existing character."
+    },
+    "ClientRemovedEvent": {
+      "vtable": "0xCE5868"
+    },
+    "ConnectingAbortEvent": {
+      "vtable": "0xCB2BB0"
+    },
+    "ConnectingStartEvent": {
+      "vtable": "0xCB2B60"
+    },
+    "ConnectivityStatsUpdatedEvent": {
+      "vtable": "0xCE7560",
+      "fields": [
+        {
+          "name": "playeridentity",
+          "offset": "0x8",
+          "kind": "object",
+          "script_type": "PlayerIdentity"
+        }
+      ],
+      "note": "Connectivity figures, pushed to the client periodically."
+    },
+    "ConsoleEvent": {
+      "vtable": "0xC5B4B0"
+    },
+    "CrashLogEvent": {
+      "vtable": "0xC25580"
+    },
+    "DLCOwnerShipFailedEvent": {
+      "vtable": "0xCB2B10"
+    },
+    "DialogQueuedEvent": {
+      "vtable": "0xCB6BC0"
+    },
+    "EntityEvent": {
+      "vtable": "0xC139D8"
+    },
+    "GamepadEvent": {
+      "vtable": "0xC50508"
+    },
+    "JoystickEvent": {
+      "vtable": "0xC504C0"
+    },
+    "KeyPressEvent": {
+      "vtable": "0xC505E0"
+    },
+    "KeyReleaseEvent": {
+      "vtable": "0xC50628"
+    },
+    "LastInputDeviceChangeEvent": {
+      "vtable": "0xC507F0"
+    },
+    "LeaveGameplaySessionEvent": {
+      "vtable": "0xCF1890"
+    },
+    "LoadWorldProgressEvent": {
+      "vtable": "0xC12828"
+    },
+    "LoginStatusEvent": {
+      "vtable": "0xCE7610"
+    },
+    "LoginTimeEvent": {
+      "vtable": "0xCE7440",
+      "fields": [
+        {
+          "name": "logintime",
+          "offset": "0x8",
+          "kind": "int"
+        }
+      ],
+      "note": "Seconds the login queue will still take."
+    },
+    "LogoutCancelEvent": {
+      "vtable": "0xCD8EC8",
+      "fields": [
+        {
+          "name": "player",
+          "offset": "0x8",
+          "kind": "object",
+          "script_type": "Man"
+        }
+      ],
+      "note": "The logout timer was cancelled."
+    },
+    "LogoutEvent": {
+      "vtable": "0xCE7488",
+      "fields": [
+        {
+          "name": "logouttime",
+          "offset": "0x8",
+          "kind": "int"
+        }
+      ],
+      "note": "Seconds the logout timer will still take."
+    },
+    "MPConnectionCloseEvent": {
+      "vtable": "0xCE72F0",
+      "fields": [
+        {
+          "name": "eclientkicked",
+          "offset": "0x8",
+          "kind": "int"
+        },
+        {
+          "name": "additionalinfo",
+          "offset": "0x10",
+          "kind": "string"
+        }
+      ],
+      "note": "The connection closed, with the reason the engine gave for it."
+    },
+    "MPConnectionLostEvent": {
+      "vtable": "0xCE72A0",
+      "fields": [
+        {
+          "name": "duration",
+          "offset": "0x8",
+          "kind": "int"
+        }
+      ],
+      "note": "The connection dropped; the value is how long reconnecting has left."
+    },
+    "MPSessionEndEvent": {
+      "vtable": "0xCD9320"
+    },
+    "MPSessionFailEvent": {
+      "vtable": "0xCE7250"
+    },
+    "MPSessionPlayerReadyEvent": {
+      "vtable": "0xCB2AB8"
+    },
+    "MPSessionStartEvent": {
+      "vtable": "0xCD92D0"
+    },
+    "MouseButtonPressEvent": {
+      "vtable": "0xC50750"
+    },
+    "MouseButtonReleaseEvent": {
+      "vtable": "0xC507A0"
+    },
+    "MouseMoveEvent": {
+      "vtable": "0xC50670"
+    },
+    "MousePositionEvent": {
+      "vtable": "0xC506B8"
+    },
+    "MouseWheelEvent": {
+      "vtable": "0xC50708"
+    },
+    "NetworkInputBufferEvent": {
+      "vtable": "0xCD62E8"
+    },
+    "NetworkManagerClientEvent": {
+      "vtable": "0xCE7340"
+    },
+    "NetworkManagerServerEvent": {
+      "vtable": "0xCE7398"
+    },
+    "OnFileDuplicateFoundEvent": {
+      "vtable": "0xC3ACE0"
+    },
+    "PlayerDeathEvent": {
+      "vtable": "0xC8A5D0"
+    },
+    "PreloadEvent": {
+      "vtable": "0xCE7518"
+    },
+    "ProgressEvent": {
+      "vtable": "0xCB7768",
+      "fields": [
+        {
+          "name": "state",
+          "offset": "0x8",
+          "kind": "int"
+        },
+        {
+          "name": "progress",
+          "offset": "0xC",
+          "kind": "float"
+        },
+        {
+          "name": "title",
+          "offset": "0x10",
+          "kind": "string"
+        }
+      ],
+      "note": "Loading progress, as a stage and a fraction."
+    },
+    "RawKeyEvent": {
+      "vtable": "0xC50550"
+    },
+    "RawMouseEvent": {
+      "vtable": "0xC50598"
+    },
+    "ReloadShadersEvent": {
+      "vtable": "0xC25778"
+    },
+    "RespawnEvent": {
+      "vtable": "0xCE74D0",
+      "fields": [
+        {
+          "name": "respawntime",
+          "offset": "0x8",
+          "kind": "int"
+        }
+      ],
+      "note": "Seconds until respawn is allowed."
+    },
+    "ScriptLogEvent": {
+      "vtable": "0xC255C8",
+      "fields": [
+        {
+          "name": "text",
+          "offset": "0x8",
+          "kind": "string"
+        }
+      ],
+      "note": "A line the scripts logged."
+    },
+    "SelectedUserChangedEvent": {
+      "vtable": "0xCF2238"
+    },
+    "ServerFpsStatsUpdatedEvent": {
+      "vtable": "0xCE75B8",
+      "fields": [
+        {
+          "name": "average_server_fps",
+          "offset": "0x8",
+          "kind": "float"
+        },
+        {
+          "name": "highest_frame_time",
+          "offset": "0xC",
+          "kind": "float"
+        },
+        {
+          "name": "skipped_steps_server",
+          "offset": "0x10",
+          "kind": "int"
+        },
+        {
+          "name": "skipped_steps_client",
+          "offset": "0x14",
+          "kind": "int"
+        }
+      ],
+      "note": "Server performance figures, pushed to the client periodically."
+    },
+    "SessionPlayerListChangedEvent": {
+      "vtable": "0xCF1838"
+    },
+    "SetFreeCameraEvent": {
+      "vtable": "0xC83308"
+    },
+    "SetPausedEvent": {
+      "vtable": "0xC25450"
+    },
+    "ShutdownEvent": {
+      "vtable": "0xD56EA8"
+    },
+    "StartedEvent": {
+      "vtable": "0xC69B28"
+    },
+    "StartupEvent": {
+      "vtable": "0xC69C30"
+    },
+    "VONStateEvent": {
+      "vtable": "0xD38EB0"
+    },
+    "VONUserStartedTransmittingAudioEvent": {
+      "vtable": "0xD38EF8"
+    },
+    "VONUserStoppedTransmittingAudioEvent": {
+      "vtable": "0xD38F58"
+    },
+    "VideoWidgetLoadEvent": {
+      "vtable": "0xC605A8"
+    },
+    "VideoWidgetPauseEvent": {
+      "vtable": "0xC60698"
+    },
+    "VideoWidgetPlayEvent": {
+      "vtable": "0xC60648"
+    },
+    "VideoWidgetSeekEvent": {
+      "vtable": "0xC60738"
+    },
+    "VideoWidgetStopEvent": {
+      "vtable": "0xC606E8"
+    },
+    "VideoWidgetUnloadEvent": {
+      "vtable": "0xC605F8"
+    },
+    "VonSystemCreatedEvent": {
+      "vtable": "0xCEFC20"
+    },
+    "WindowsResizeEvent": {
+      "vtable": "0xC17828"
+    },
+    "WorldCleaupEvent": {
+      "vtable": "0xD38E60"
     }
   }
 }
