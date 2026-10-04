@@ -389,7 +389,7 @@
     },
     "string.holder_create": {
       "rva": "0x5DC10",
-      "note": "enf::BasicStringHolder<char> from a C string: allocates length + 0x18 and writes refcount 0, length, then the characters. An empty string returns null rather than an empty holder, which is why a null holder has to read as \"\"."
+      "note": "enf::BasicStringHolder<char> from a C string: allocates length + 0x18 and writes refcount 0, then strlen + 1 as the length, then the characters with their terminator. An empty string returns null rather than an empty holder, which is why a null holder has to read as \"\"."
     }
   },
   "offsets": {
@@ -463,7 +463,7 @@
     },
     "string.length": {
       "value": "0x08",
-      "note": "Length in bytes of an enf::BasicStringHolder<char>, excluding the terminator."
+      "note": "Byte count of an enf::BasicStringHolder<char> INCLUDING the NUL terminator: the allocator stores strlen + 1 and copies that many bytes, so the characters are one short of it. Verified at runtime \u2014 reading the full count yields a trailing NUL."
     },
     "string.refcount": {
       "value": "0x0",
